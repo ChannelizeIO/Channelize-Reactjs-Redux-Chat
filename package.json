@@ -1,0 +1,76 @@
+{
+  "name": "channelize-react-chat",
+  "version": "1.0.0",
+  "description": "This React-Redux Chat UI Kit is built using Channelize.io JavaScript Chat SDK",
+  "author": "Channelize.io",
+  "homepage": "https://channelize.io",
+  "repository": "https://github.com/ChannelizeIO/Channelize-Reactjs-Redux-Chat.git",
+  "main": "dist/index.js",
+  "cdn": "dist/browser.min.js",
+  "style": {
+    "fullViewLayout": "dist/css/fullViewLayout.css",
+    "compactLayout": "dist/css/compactLayout.css"
+  },
+  "keywords": [
+    "chat",
+    "messaging",
+    "conversation",
+    "chat-application",
+    "realtime-messaging",
+    "chat-SDK",
+    "chatapp",
+    "messenger",
+    "react",
+    "redux",
+    "channelize.io"
+  ],
+  "dependencies": {
+    "channelize-chat": "^4.2.6",
+    "lodash": "^4.17.15",
+    "moment": "^2.27.0",
+    "prop-types": "^15.7.2",
+    "react-redux": "^7.2.0",
+    "react-scripts": "3.4.0",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0"
+  },
+  "peerDependencies": {
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0"
+  },
+  "scripts": {
+    "build:prod": "webpack --mode production --config ./webpack.config.js && npm run clean",
+    "build:dev": "webpack --mode development --config ./webpack.config.js",
+    "start": "webpack --watch --mode development --config ./webpack.config.js",
+    "clean": "rm dist/compactLayout.js && rm dist/fullViewLayout.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.4.1",
+    "@testing-library/user-event": "^7.2.1",
+    "mini-css-extract-plugin": "^0.9.0",
+    "node-sass": "^4.13.1",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "redux-logger": "^3.0.6",
+    "remote-redux-devtools": "^0.5.16",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-node-externals": "^2.5.0"
+  }
+}

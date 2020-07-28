@@ -1,0 +1,121 @@
+@import './main.scss';
+@import './variables.scss';
+
+// Font sizes
+$ch-body-font-size: 13px;
+$ch-title-fontsize: 13px;
+$ch-subtitle-fontsize: 13px;
+$ch-status-fontsize: 10px;
+$ch-app-icon-fontsize: 20px;
+
+body {
+  font-size: $ch-body-font-size;
+}
+
+.ch-header {
+  padding: 10px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  .ch-header-image {
+    height: 30px;
+    width: 30px;
+  }
+  .ch-header_details {
+    .ch-header-title {
+	    font-size: $ch-title-fontsize;
+	  }
+  	.ch-header-subtitle {
+  	  margin-top: 3px;
+  	  font-size: $ch-status-fontsize;
+  	}
+  }
+}
+
+.ch-recent-window {
+  box-shadow: rgba(0,0,0,.3) 0 0 1.2em;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+
+  .ch-recent-listing {
+    .ch-recent-ul li {
+      padding: 10px;
+      .ch-conversation-image {
+      	height: 30px;
+      	width: 30px
+      }
+      .ch-created-at {
+      	font-size: $ch-status-fontsize;
+      }
+      .ch-conversation-content {
+        .ch-last-msg-box {
+          .ch-last-message {
+            font-size: $ch-subtitle-fontsize;
+          }
+        }
+      }
+    }
+  }
+}
+
+.ch-loader {
+  width: 20px;
+  height: 20px;
+}
+
+.ch-conv-window {
+  box-shadow: rgba(0,0,0,.3) 0 0 1.2em;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+
+  .ch-messages-box {
+    .ch-msg-list {
+      .ch-msg-padding {
+        .ch-message-date-separator {
+          .message-date-separator_text {
+            width: 30%
+          }
+        }
+      }
+    }
+  }
+  .ch-messages-box {
+  	padding: 10px;
+  }
+  .ch-send-box {
+    button {
+      i.ch-send-icon {
+        font-size: $ch-app-icon-fontsize;
+      }
+    }
+    .ch-media-icon-box {
+      margin: 0 3px;
+      .ch-attachment-icon {
+        font-size: $ch-app-icon-fontsize;
+      }
+      .ch-gallary-input {
+        left: 15px;
+      }
+      .ch-document-input {
+        left: 40px;
+      } 
+    }
+  }
+}
+
+.ch-search-window {
+  box-shadow: rgba(0,0,0,.3) 0 0 1.2em;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  .ch-search-box {
+    .ch-search-input-box {
+      font-size: 13px;
+    }
+  }
+  .ch-friends-box {
+    li {
+      .ch-friend-name {
+        font-size: 13px;
+      }
+    }
+  }  
+}
