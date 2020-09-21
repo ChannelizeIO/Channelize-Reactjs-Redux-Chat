@@ -86,7 +86,10 @@ export const modifyMessageList = (client, conversation, list) => {
     if (!('profileImageUrl' in message.owner)) {
       message.owner.profileImageUrl = IMAGES.AVTAR
     }
-
+    if (('displayName' in message.owner)) {
+      message.owner.displayName = capitalize(message.owner.displayName)
+    }
+  
     // Determine if message owner is self or other?
     message['isUser'] = false;
     if (user.id == message.ownerId) {

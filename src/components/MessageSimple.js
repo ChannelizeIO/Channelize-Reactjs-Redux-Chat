@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { withChannelizeContext } from '../context';
 import { dateSeparatorParser } from '../utils'
 
-class MessagePreview extends Component {
+class MessageSimple extends Component {
 	constructor(props) {
   	super(props);
 	}
@@ -110,6 +110,6 @@ class MessagePreview extends Component {
 	}
 }
 
-MessagePreview = withChannelizeContext(MessagePreview);
+MessageSimple = withChannelizeContext(MessageSimple);
 
-export { MessagePreview };
+export { MessageSimple };

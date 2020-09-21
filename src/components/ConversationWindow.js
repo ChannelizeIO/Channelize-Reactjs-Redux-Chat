@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Header } from "./Header";
 import { Loader } from "./Loader";
-import { MessagePreview } from "./MessagePreview";
+import { MessageSimple } from "./MessageSimple";
 import { modifyConversation, modifyMessageList } from "../utils";
 import { connect } from 'react-redux';
 import { LANGUAGE_PHRASES, IMAGES } from "../constants";
@@ -12,10 +12,13 @@ import {
   sendMessageToUserId,
   sendFileToConversation,
   loadMoreMessages as loadMoreMessagesAction,
-  setActiveConversation
+  setActiveConversation,
+  setActiveUserId,
+  registerConversationEventHandlers
 } from '../actions';
 import moment from 'moment';
 import throttle from 'lodash/throttle';
+import PropTypes from 'prop-types';
 
 class ConversationWindow extends PureComponent {
 
@@ -163,8 +166,30 @@ class ConversationWindow extends PureComponent {
   }
 
   _init = () => {
-    const { client, conversation, userId } = this.props;
+    const { client, conversation, userId, ownProps } = this.props;
+
     if (!conversation && !userId) {
+      // Handle ownProps
+      if (Object.keys(ownProps).length) {
+        if (ownProps.conversation) {
+          let conversation = ownProps.conversation;
+
+          if (conversation.type != 'open' || conversation.__isWatching) {
+            this.props.setActiveConversation(conversation);
+            return;
+          }
+
+          // Start watching open conversation
+          conversation.startWatching((err, res) => {
+            this.props.setActiveConversation(conversation);
+          })
+          return;
+        }
+        if (ownProps.userId) {
+          this.props.setActiveUserId(ownProps.userId);
+          return;
+        }
+      }
       return
     }
 
@@ -197,6 +222,9 @@ class ConversationWindow extends PureComponent {
     if (!conversation) {
       return
     }
+
+    // Register conversation event handlers
+    this.props.registerConversationEventHandlers(conversation);
 
     // Load messages
     let messageListQuery = conversation.createMessageListQuery();
@@ -303,7 +331,9 @@ class ConversationWindow extends PureComponent {
       showCloseIcon,
       showChevron,
       disableComposer,
-      disableComposerMessage
+      disableComposerMessage,
+      Message,
+      renderHeader
     } = this.props;
     const { text, dummyConversation } = this.state;
 
@@ -349,10 +379,10 @@ class ConversationWindow extends PureComponent {
     }
 
     const user = client.getCurrentUser();
-
 		return (
   		<div id="ch_conv_window" className="ch-conv-window">
-  			{ conversation && <Header 
+        { conversation && renderHeader && renderHeader(conversation) }
+  			{ conversation && !renderHeader && <Header 
           profileImageUrl={headerImage}
           title={headerTitle}
           subtitle={headerSubtitle}
@@ -393,7 +423,7 @@ class ConversationWindow extends PureComponent {
 
     				{
     					list.map(message => {
-                return <MessagePreview key={message.id} message={message}/>
+                return <Message key={message.id} message={message}/>
               })
     				}
           </div>
@@ -439,8 +469,16 @@ class ConversationWindow extends PureComponent {
 
 ConversationWindow = withChannelizeContext(ConversationWindow);
 
-const mapStateToProps = ({message, client}) => {
-  return {...message, ...client}
+ConversationWindow.propTypes = {
+  Message: PropTypes.elementType,
+}
+
+ConversationWindow.defaultProps = {
+  Message: MessageSimple
+};
+
+const mapStateToProps = ({message, client}, ownProps) => {
+  return {...message, ...client, ownProps: ownProps}
 }
 
 ConversationWindow = connect(
@@ -451,7 +489,10 @@ ConversationWindow = connect(
     sendMessageToUserId,
     sendFileToConversation,
     loadMoreMessagesAction,
-    setActiveConversation }
+    setActiveConversation,
+    setActiveUserId,
+    registerConversationEventHandlers
+   }
 )(ConversationWindow);
 
 export { ConversationWindow }

@@ -1,4 +1,5 @@
-import { 
+import {
+  CONNECTING, 
   CONNECT_SUCCESS,
   CONNECT_FAIL,
   DISCONNECT_SUCCESS,
@@ -40,8 +41,21 @@ const _connect = (client, userId, accessToken) => {
   });
 };
 
+export const setConnected = (value = true) => {
+  return dispatch => {
+    dispatch({
+      type: CONNECT_SUCCESS,
+      payload: {}
+    });
+  }
+}
+
 export const chConnect = (client, userId, accessToken) => {
   return dispatch => {
+    dispatch({
+      type: CONNECTING,
+      payload: {}
+    });
     return _connect(client, userId, accessToken)
       .then(response => connectSuccess(dispatch, response))
       .catch(error => connectFail(dispatch, error));

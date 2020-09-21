@@ -58,6 +58,7 @@ export const SETTINGS = {
 	LOCATION_IMG_URL : "https://maps.googleapis.com/maps/api/staticmap"
 }
 
+export const CONNECTING = 'CONNECTING'
 export const CONNECT_SUCCESS = 'CONNECT_SUCCESS'
 export const CONNECT_FAIL = 'CONNECT_FAIL'
 export const DISCONNECT_SUCCESS = 'DISCONNECT_SUCCESS'

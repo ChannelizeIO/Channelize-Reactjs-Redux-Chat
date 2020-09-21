@@ -2,7 +2,8 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { 
   chConnect,
-  registerEventHandlers
+  registerEventHandlers,
+  setConnected
 } from "../actions";
 import { IMAGES } from "../constants";
 import { ChannelizeProvider } from '../context';
@@ -20,7 +21,12 @@ class App extends PureComponent {
 
   componentDidMount() {
     const { client, userId, accessToken } = this.props;
-    this.props.chConnect(client, userId, accessToken);
+    if (!client.connected) {
+      this.props.chConnect(client, userId, accessToken);
+      return
+    }
+
+    this.props.setConnected(true)
   }
 
   componentDidUpdate(prevProps) {
@@ -55,7 +61,7 @@ const mapStateToProps = ({client}) => {
 
 App = connect(
   mapStateToProps,
-  { chConnect, registerEventHandlers }
+  { chConnect, registerEventHandlers, setConnected }
 )(App);
 
 export { App };

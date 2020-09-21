@@ -12,7 +12,8 @@ import {
   LOAD_MORE_MESSAGES_SUCCESS,
   LOAD_MORE_MESSAGES_FAIL,
   SET_ACTIVE_CONVERSATION,
-  SET_ACTIVE_USERID
+  SET_ACTIVE_USERID,
+  NEW_MESSAGE_RECEIVED_EVENT
 } from '../constants';
 
 export const sendFileToConversation = (client, conversation, file, body, attachmentType) => {
@@ -156,3 +157,18 @@ export const setActiveUserId = (userId) => {
     });
   };
 };
+
+export const registerConversationEventHandlers = (conversation) => {
+  return dispatch => {
+    if (!conversation.__isWatching) {
+      return
+    }
+
+    conversation.on('watcher.message.created', (response) => {
+      dispatch({
+        type: NEW_MESSAGE_RECEIVED_EVENT,
+        payload: response
+      });
+    });
+  }
+}

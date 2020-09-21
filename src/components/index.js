@@ -5,5 +5,6 @@ export { Loader } from './Loader';
 export { ConversationList } from './ConversationList';
 export { ConversationItem } from './ConversationItem';
 export { ConversationWindow } from './ConversationWindow';
-export { MessagePreview } from './MessagePreview';
+export { MessageSimple } from './MessageSimple';
+export { MessageLivestream } from './MessageLivestream';
 export { SearchWindow } from './SearchWindow';
