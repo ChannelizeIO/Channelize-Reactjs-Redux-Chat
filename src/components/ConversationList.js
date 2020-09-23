@@ -60,6 +60,7 @@ class ConversationList extends PureComponent {
     let conversationListQuery = client.Conversation.createConversationListQuery();
     conversationListQuery.limit = this.limit;
     conversationListQuery.skip = this.skip;
+    conversationListQuery.include = 'members';
     this.props.getConversationList(conversationListQuery);
   }
 

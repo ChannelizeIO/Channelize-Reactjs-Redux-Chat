@@ -1,9 +1,10 @@
 import {
-  CONNECTING, 
+  CONNECTING,
   CONNECT_SUCCESS,
   CONNECT_FAIL,
   DISCONNECT_SUCCESS,
   DISCONNECT_FAIL,
+  TYPING_EVENT,
   NEW_MESSAGE_RECEIVED_EVENT,
   USER_STATUS_UPDATED_EVENT,
   MARK_AS_READ_EVENT,
@@ -174,6 +175,13 @@ export const registerEventHandlers = (client) => {
     client.chsocket.on('conversation.mark_as_read', function (response) {
       dispatch({
         type: MARK_AS_READ_EVENT,
+        payload: response
+      });
+    });
+
+    client.chsocket.on('conversation.typing', function (response) {
+      dispatch({
+        type: TYPING_EVENT,
         payload: response
       });
     });

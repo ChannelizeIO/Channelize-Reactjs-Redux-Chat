@@ -25,7 +25,6 @@ class App extends PureComponent {
       this.props.chConnect(client, userId, accessToken);
       return
     }
-
     this.props.setConnected(true)
   }
 

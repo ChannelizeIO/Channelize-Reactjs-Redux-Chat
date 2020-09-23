@@ -1,7 +1,7 @@
-import { LANGUAGE_PHRASES } from "../constants";
 import {produce, setAutoFreeze} from "immer"
 import moment from 'moment';
-import { IMAGES } from "../constants";
+import { LANGUAGE_PHRASES, ADMIN_MSG_FORMATS, CALL_FORMATS, IMAGES } from "../constants";
+var sprintf = require('sprintf-js').sprintf
 setAutoFreeze(false);
 
 export function createReducer(initialState, actionsMap) {
@@ -20,6 +20,8 @@ export function uniqueList(list) {
     });
     if (ids.indexOf(currentValue.id) < 0) {
       uniqList.push(currentValue);
+    }else {
+      uniqList.splice(ids.indexOf(currentValue.id), 1, currentValue);
     }
     return uniqList;
   }, []);
@@ -46,6 +48,16 @@ export const modifyConversation = (conversation) => {
     conversation.profileImageUrl = conversation.profileImageUrl ? conversation.profileImageUrl : IMAGES.GROUP;
   }
 
+  // Set conversation members
+  conversation.otherMemberIds = [];
+  if (conversation.members) {
+    conversation.members.map((member) => {
+      if(member.userId != conversation._client.loginUser.id) {
+        conversation.otherMemberIds.push(member.userId);
+      }
+    });
+  }
+
   return conversation;
 }
 
@@ -66,7 +78,7 @@ export const modifyMessageList = (client, conversation, list) => {
     message.showReadStatus = false;
     if (lastMessage && lastMessage.id == message.id) {
       message.showReadStatus = true;
-      message.readByAll = conversation.readByAllMembers(message);
+      message.readByAll = !message.pending && conversation.readByAllMembers(message);
     }
 
     // Handle created At
@@ -89,7 +101,7 @@ export const modifyMessageList = (client, conversation, list) => {
     if (('displayName' in message.owner)) {
       message.owner.displayName = capitalize(message.owner.displayName)
     }
-  
+
     // Determine if message owner is self or other?
     message['isUser'] = false;
     if (user.id == message.ownerId) {
@@ -107,10 +119,16 @@ export const modifyMessageList = (client, conversation, list) => {
 
       message.showOwnerAvatar = false;
       const isUserLastMessage = (i == list.length -1 && user.id == message.owner.id);
-      message.showOwnerAvatar = !(isSameUser(message, nextMessage, user) || isUserLastMessage)
+      message.showOwnerAvatar = !(isSameUser(message, nextMessage, user) || isUserLastMessage || message.isUser);
 
       let prevMessage = list[i - 1];
       message.showDateSeparator = !isSameDay(message, prevMessage)
+    }
+
+    // Handle admin message
+    if (message.type == 'admin') {
+      message.system = true;
+      message = _modifyAdminMessage(user, message);
     }
 
     return message;
@@ -120,10 +138,6 @@ export const modifyMessageList = (client, conversation, list) => {
 export const getLastMessageString = (client, conversation) => {
   const user = client.getCurrentUser();
   let message = conversation.lastMessage;
-
-  if (!message) {
-    return "";
-  }
 
   let lastMessageString;
   if (!Object.keys(message).length) {
@@ -251,6 +265,25 @@ export function isSameDay(currentMessage, diffMessage) {
   return currentCreatedAt.getDate() == diffCreatedAt.getDate();
 }
 
+export const typingString = (typing) => {
+  if (!typing.length) {
+    return null;
+  }
+
+  typing = typing.map(user => capitalize(user.displayName.trim().split(' ')[0]));
+  if (typing.length == 1) {
+    return `${typing[0]} is typing...`;
+  } else if(typing.length == 2) {
+    const firstUser = typing[0];
+    const secondUser = typing[1];
+    return `${firstUser} and {secondUser} are typing...`;
+  } else if(typing.length > 2) {
+    const commaSeparatedUsers = typing.slice(0, -1).join(', ')
+    const lastuser = typing.slice(-1);
+    return `${commaSeparatedUsers} and {lastuser} are typing...`;
+  }
+}
+
 export function isSameUser(currentMessage, diffMessage, user) {
   return !!(diffMessage &&
     diffMessage.owner &&
@@ -272,4 +305,92 @@ export const capitalize = (s) => {
   }
 
   return s.join(" ");
+}
+
+const _modifyAdminMessage = (user, message) => {
+  if (message.type != 'admin') {
+    return message;
+  }
+
+  const attachments = message.attachments;
+  if (!attachments.length) {
+    return message;
+  }
+
+  let attachment = attachments[0];
+  let metaData = attachment.metaData;
+
+  if(metaData.type == "voice" || metaData.type == "video") {
+    let duration = metaData.duration ? " " + secondsToHms(metaData.duration) : "";
+    message.text = CALL_FORMATS[attachment.adminMessageType] + duration;
+    return message;
+  }
+
+  // Manipulate subject
+  let subName;
+  if (metaData.subType == 'user') {
+    if (user.id == metaData.subId) {
+      subName = LANGUAGE_PHRASES.YOU;
+    } else {
+      if (metaData.subUser) {
+        subName = capitalize(metaData.subUser.displayName);
+      } else {
+        subName = LANGUAGE_PHRASES.DELETED_MEMBER;
+      }
+    }
+  }
+
+  // Manipulate object
+  let objNames;
+  const objType = metaData.objType;
+  const objValues = metaData.objValues;
+  if (metaData.objType == 'user') {
+    if (metaData.objUsers) {
+      if (user.id == metaData.objUsers.id) {
+        objNames = LANGUAGE_PHRASES.YOU;
+      } else {
+        objNames = capitalize(metaData.objUsers.displayName);
+      }
+    } else {
+      objNames = LANGUAGE_PHRASES.DELETED_MEMBER;
+    }
+  } else if(metaData.objType == 'users' && Array.isArray(objValues)) {
+    let names = [];
+    objValues.forEach(value => {
+      const objUser = metaData.objUsers.find(objUser => objUser && objUser.id == value);
+      let name;
+      if (objUser) {
+        name = capitalize(objUser.displayName);
+      } else {
+        name = LANGUAGE_PHRASES.DELETED_MEMBER;
+      }
+      names.push(name);
+    });
+    objNames = names.join(', ');
+  } else if(metaData.objType == 'group') {
+    if(typeof objValues == 'string') {
+      objNames = capitalize(objValues);
+    } else {
+      objNames = objValues;
+    }
+  }
+
+  const format = ADMIN_MSG_FORMATS[attachment.adminMessageType];
+  if (format) {
+    message.text = sprintf(format, subName, objNames);
+  }
+
+  return message
+}
+
+function secondsToHms(second) {
+  second = Number(second);
+  var h = Math.floor(second / 3600);
+  var m = Math.floor(second % 3600 / 60);
+  var s = Math.floor(second % 3600 % 60);
+
+  var hDisplay = h > 0 ? h + "h " : "";
+  var mDisplay = m > 0 ? m + "m " : "";
+  var sDisplay = s > 0 ? s + "s ": "";
+  return hDisplay + mDisplay + sDisplay; 
 }

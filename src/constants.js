@@ -20,6 +20,8 @@ export const LANGUAGE_PHRASES = {
 	LOCATION : "Location",
 	STICKER : "Sticker",
 	GIF : "GIF",
+	SHARE_GALLERY : "Share photo & video",
+	SHARE_DOCUMENT : "Share a document",
 	SEND_ATTACHMENTS : "Send Attachments",
 	MEMBERS : "Members",
 	FILE_SIZE_WARNING : "File size should be less then 25mb",
@@ -34,7 +36,30 @@ export const LANGUAGE_PHRASES = {
 	ENTER_NAME : "Please enter a name",
 	USER_EXIST : "User already exist with this username",
 	DELETE_FOR_ME : "Delete for me",
-	DELETE_FOR_EVERYONE : "Delete for everyone"
+	DELETE_FOR_EVERYONE : "Delete for everyone",
+	DOWNLOAD_FILE_NAME : "File",
+	YOU : "You",
+	SEND : "Send"
+}
+
+export const ADMIN_MSG_FORMATS = {
+	admin_group_create: "%s created group %s",
+	admin_group_join: "%s joined",
+	admin_group_add_members: "%s added %s",
+	admin_group_remove_members: "%s removed %s",
+	admin_group_leave: "%s left",
+	admin_group_make_admin: "%s are now an admin",
+	admin_group_change_title: "%s changed the title to %s",
+	admin_group_change_photo: "%s changed group photo",
+	admin_call_video_missed: "%s missed a video call from %s",
+	admin_call_voice_missed: "%s missed a voice call from %s"
+}
+
+export const CALL_FORMATS = {
+	admin_call_rejected : "Call Rejected",
+	admin_call_completed : "Call Completed",
+	admin_call_not_answered : "Call Not Answered",
+	admin_call_missed : "Missed Call"
 }
 
 export const IMAGES = {
@@ -109,3 +134,4 @@ export const LOAD_MORE_MESSAGES_SUCCESS = 'LOAD_MORE_MESSAGES_SUCCESS'
 export const LOAD_MORE_MESSAGES_FAIL = 'LOAD_MORE_MESSAGES_FAIL'
 export const SET_ACTIVE_CONVERSATION = 'SET_ACTIVE_CONVERSATION'
 export const SET_ACTIVE_USERID = 'SET_ACTIVE_USERID'
+export const TYPING_EVENT = 'TYPING_EVENT'
