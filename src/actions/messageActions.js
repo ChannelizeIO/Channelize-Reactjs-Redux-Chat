@@ -35,13 +35,16 @@ export const sendFileToConversation = (client, conversation, file, body, attachm
         return;
       }
 
-      body['attachments'] = [fileData];
-      return conversation.sendMessage(body, (err, response) => {
+      let fileMsgObject = {};
+      fileMsgObject['id'] = body.id;
+      fileMsgObject['attachments'] = [fileData];
+      
+      return conversation.sendMessage(fileMsgObject, (err, response) => {
         if (err) {
-          body.error = err;
+          fileMsgObject.error = err;
           dispatch({
             type: SEND_FILE_FAIL,
-            payload: body
+            payload: fileMsgObject
           });
           return;
         }
@@ -61,13 +64,21 @@ export const sendMessageToConversation = (conversation, body) => {
       type: SENDING_MESSAGE,
       payload: body
     });
-    return conversation.sendMessage(body, (err, response) => {
+
+    let msgBody = {
+      id: body.id,
+      body: body.body,
+      attachments: body.attachments ? body.attachments : [], 
+    }
+    
+    return conversation.sendMessage(msgBody, (err, response) => {
       if (err) {
-        body.error = err;
+        msgBody.error = err;
         dispatch({
           type: SEND_MESSAGE_FAIL,
-          payload: body
+          payload: msgBody
         });
+        return;
       }
       dispatch({
         type: SEND_MESSAGE_SUCCESS,
@@ -110,6 +121,7 @@ export const getMessageList = (messageListQuery) => {
           type: MESSAGE_LIST_FAIL,
           payload: err
         });
+        return;
       }
       dispatch({
         type: MESSAGE_LIST_SUCCESS,
@@ -131,6 +143,7 @@ export const loadMoreMessages = (messageListQuery) => {
           type: LOAD_MORE_MESSAGES_FAIL,
           payload: err
         });
+        return;
       }
       dispatch({
         type: LOAD_MORE_MESSAGES_SUCCESS,

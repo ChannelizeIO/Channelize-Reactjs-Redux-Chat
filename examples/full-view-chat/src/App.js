@@ -10,12 +10,13 @@ import { Channelize } from 'channelize-chat';
 // Import style 
 import './channelize-chat-react/dist/css/fullViewLayout.css'
 
+
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      showSearchWindow: false
+      showSearchWindow: false,
     }
   }
 
@@ -39,7 +40,7 @@ class App extends Component {
 
     return (
       <Chat client={client} userId={userId} accessToken={accessToken}>
-        <div style={{width: '100%', height: '100vh', display: 'flex'}}>
+        <div style={{width: '100%', height: '100vh', display: 'flex', overflow: 'hidden'}}>
           <div style={{ height: '100%', width: '24%'}}>
             { showSearchWindow ?
               <SearchWindow 
@@ -56,7 +57,6 @@ class App extends Component {
           </div>
           <div style={{ height: '100%', width: '75%'}}>
             <ConversationWindow
-            showCloseIcon={true}
             showSearchIcon={true} 
             showChevron={false}
             disableComposerMessage="This conversation is closed now."

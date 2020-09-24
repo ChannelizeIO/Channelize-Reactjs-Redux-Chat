@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
 import { Header } from "./Header";
 import { Loader } from "./Loader";
+import { MediaLightBox } from "./MediaLightBox";
 import { MessageSimple } from "./MessageSimple";
-import { modifyConversation, modifyMessageList } from "../utils";
+import { modifyConversation, modifyMessageList, typingString } from "../utils";
 import { connect } from 'react-redux';
 import { LANGUAGE_PHRASES, IMAGES } from "../constants";
 import { withChannelizeContext } from '../context';
@@ -17,7 +18,9 @@ import {
   registerConversationEventHandlers
 } from '../actions';
 import moment from 'moment';
+import { v4 as uuid } from 'uuid';
 import throttle from 'lodash/throttle';
+import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
 
 class ConversationWindow extends PureComponent {
@@ -26,6 +29,7 @@ class ConversationWindow extends PureComponent {
     super(props);
     this.limit = 25;
     this.skip = 0;
+    this.showMediaLightBox = false;
 
     this.handleChange = this.handleChange.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
@@ -33,6 +37,8 @@ class ConversationWindow extends PureComponent {
     this.onScroll = this.onScroll.bind(this);
     this._markAsRead = throttle(this._markAsRead, 500);
     this.sendMedia = this.sendMedia.bind(this);
+    this._startTyping = throttle(this._startTyping, 3000);
+    this._stopTyping = debounce(this._stopTyping, 3000);
 
     this.chMessageBoxRef = React.createRef();
 
@@ -247,31 +253,144 @@ class ConversationWindow extends PureComponent {
     if(event.keyCode === 13) {
       event.preventDefault();
       this.sendMessage();
+      return;
+    }
+
+    this._onTextMessageChanged(event.target.value);
+  }
+
+  _onTextMessageChanged = (textMessage) => {
+    if (textMessage) {
+      this._startTyping();
+    }
+
+    this._stopTyping();
+  }
+
+  _startTyping = () => {
+    const { conversation } = this.props;
+    if (conversation && conversation.type == "private") {
+      conversation.startTyping();
+    }
+  }
+
+  _stopTyping = () => {
+    const { conversation } = this.props;
+    if (conversation  && conversation.type == "private") {
+      conversation.stopTyping();
     }
   }
 
   sendFile(file) {
     const { client, conversation } = this.props;
+    const user = client.getCurrentUser();
 
     let fileType = file.type.split('/').shift();
 
-    const body = {}
-    this.props.sendFileToConversation(client, conversation, file, body, fileType);
+    if(file.type.match('application')) {
+
+      const body = {
+        id: uuid(),
+        pending: true,
+        ownerId: user.id,
+        attachments: [{
+          type: fileType,
+          name: file.name
+        }],
+      }
+      
+      this.props.sendFileToConversation(client, conversation, file, body, fileType);
+      return;
+    }
+
+    this.getFileThumbnailUrl(file, (url) => {
+      const body = {
+        id: uuid(),
+        pending: true,
+        ownerId: user.id,
+        attachments: [{
+          type: fileType,
+          thumbnailUrl: url
+        }],
+      }
+
+      if(file.type.match('video')) {
+        body.attachments[0].fileUrl = URL.createObjectURL(file);
+      }
+      
+      this.props.sendFileToConversation(client, conversation, file, body, fileType);
+    });
   }
   
   sendMessage() {
     const { conversation, client, userId } = this.props;
+    const user = client.getCurrentUser();
     const { text } = this.state;
     let body = {
-      body: text
+      id: uuid(),
+      body: text,
+      ownerId: user.id,
+      pending: true,
     }
     this.setState({text: ''})
+
 
     if (conversation) {
       this.props.sendMessageToConversation(conversation, body)
     } else {
       body.userId = userId;
       this.props.sendMessageToUserId(client, body)
+    }
+  }
+
+  getFileThumbnailUrl(file, cb) {
+    var fileReader = new FileReader();
+    if (file.type.match('image')) {
+      fileReader.onload = function() {
+        var img = document.createElement('img');
+        cb(fileReader.result);
+      };
+      fileReader.readAsDataURL(file);
+    } else if(file.type.match('video')) {
+      fileReader.onload = function() {
+        var blob = new Blob([fileReader.result], {type: file.type});
+        var url = URL.createObjectURL(blob);
+        var video = document.createElement('video');
+        var timeupdate = function() {
+          if (snapImage()) {
+            video.removeEventListener('timeupdate', timeupdate);
+            video.pause();
+          }
+        };
+        video.addEventListener('loadeddata', function() {
+          if (snapImage()) {
+            video.removeEventListener('timeupdate', timeupdate);
+          }
+        });
+        var snapImage = function() {
+          var canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+          var image = canvas.toDataURL();
+          var success = image.length > 100000;
+          if (success) {
+            var img = document.createElement('img');
+            img.src = image;
+            cb(image);
+            URL.revokeObjectURL(url);
+          }
+          return success;
+        };
+        video.addEventListener('timeupdate', timeupdate);
+        video.preload = 'metadata';
+        video.src = url;
+        // Load video in Safari / IE11
+        video.muted = true;
+        video.playsInline = true;
+        video.play();
+      };
+      fileReader.readAsArrayBuffer(file);
     }
   }
 
@@ -316,6 +435,12 @@ class ConversationWindow extends PureComponent {
 
   sendMedia(event) {
     this.sendFile(event.target.files[0]);
+    event.target.value = null;
+  }
+
+  viewMediaToggle(message) {
+    let file = message ? message.attachments[0] : null
+    this.setState({openMediaFile: file});
   }
 
   render() {
@@ -333,7 +458,8 @@ class ConversationWindow extends PureComponent {
       disableComposer,
       disableComposerMessage,
       Message,
-      renderHeader
+      renderHeader,
+      typing
     } = this.props;
     const { text, dummyConversation } = this.state;
 
@@ -346,7 +472,7 @@ class ConversationWindow extends PureComponent {
     // Modify message list
     list = modifyMessageList(client, conversation, list);
 
-    // disable composer setting
+    // Disable composer setting
     let composerDisabled = false;
     if (disableComposer && typeof disableComposer == 'function') {
       composerDisabled = disableComposer(conversation)
@@ -357,8 +483,9 @@ class ConversationWindow extends PureComponent {
     let headerTitle;
     let headerImage;
     let headerSubtitle;
+
     if (conversation) {
-      conversation = modifyConversation(conversation)
+      conversation = modifyConversation(conversation);
       headerTitle = conversation.title;
       headerImage = conversation.profileImageUrl;
 
@@ -379,10 +506,12 @@ class ConversationWindow extends PureComponent {
     }
 
     const user = client.getCurrentUser();
+    const typingStrings = typingString(typing);
+
 		return (
   		<div id="ch_conv_window" className="ch-conv-window">
-        { conversation && renderHeader && renderHeader(conversation) }
-  			{ conversation && !renderHeader && <Header 
+  			{ conversation && renderHeader && renderHeader(conversation) }
+        { conversation && !renderHeader && <Header
           profileImageUrl={headerImage}
           title={headerTitle}
           subtitle={headerSubtitle}
@@ -398,6 +527,7 @@ class ConversationWindow extends PureComponent {
               </div>
             )
           }}
+
           renderRight={() => {
             return (
               <React.Fragment>
@@ -423,9 +553,15 @@ class ConversationWindow extends PureComponent {
 
     				{
     					list.map(message => {
-                return <Message key={message.id} message={message}/>
+                return <Message 
+                    key={message.id} 
+                    message={message} 
+                    onClickEvent={()=>this.viewMediaToggle(message)} 
+                  />
               })
     				}
+
+            <div className="ch-typing-strings">{typingStrings}</div>
           </div>
         </div>
 
@@ -439,29 +575,38 @@ class ConversationWindow extends PureComponent {
         			<div id="ch_send_box" className="ch-send-box">
 
                 <div className="ch-media-icon-box">
-                  <i title="Image" className="material-icons ch-attachment-icon">insert_photo</i>
-                  <input id="ch_gallary_input" className="ch-gallary-input" type="file" accept="image/*" onChange={this.sendMedia} />
+                  <i title={LANGUAGE_PHRASES.SHARE_GALLERY} className="material-icons ch-attachment-icon">insert_photo</i>
+                  <input id="ch_gallary_input" title={LANGUAGE_PHRASES.SHARE_GALLERY} className="ch-gallary-input" type="file" accept="image/*, video/*" onChange={this.sendMedia} />
                 </div>
 
                 <div className="ch-media-icon-box">
-                  <i title="Document" className="material-icons ch-attachment-icon">description</i>
-                  <input id="ch_document_input" className="ch-document-input" type="file" accept="application/*,.doc,.docx,.xls,.ppt" onChange={this.sendMedia} />
+                  <i title={LANGUAGE_PHRASES.SHARE_DOCUMENT} className="material-icons ch-attachment-icon">description</i>
+                  <input id="ch_document_input" title={LANGUAGE_PHRASES.SHARE_DOCUMENT} className="ch-document-input" type="file" accept="application/*,.doc,.docx,.xls,.ppt" onChange={this.sendMedia} />
                 </div>
 
         				<textarea 
                   id="ch_input_box"
                   className="ch-input-box"
                   type="text"
-                  placeholder="Send a message"
+                  placeholder={LANGUAGE_PHRASES.SEND_MESSAGE}
                   value={text}
                   onChange={this.handleChange} 
                   onKeyUp={this.handleKeyUp}></textarea>
 
-      					<button id="ch_send_button" className="ch-send-button" onClick={this.sendMessage}><i className="ch-send-icon material-icons">send</i></button>
+      					<button
+                  id="ch_send_button"
+                  className="ch-send-button"
+                  title={LANGUAGE_PHRASES.SEND}
+                  onClick={this.sendMessage}
+                >
+                  <i className="ch-send-icon material-icons">send</i>
+                </button>
         			</div>
             }
           </React.Fragment>
         }
+
+        { this.state.openMediaFile && <MediaLightBox file={this.state.openMediaFile} onCloseClick={()=> this.viewMediaToggle(null)} /> }
   		</div>
 		);
   }
