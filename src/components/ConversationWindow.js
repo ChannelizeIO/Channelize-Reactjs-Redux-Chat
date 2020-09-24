@@ -18,7 +18,7 @@ import {
   registerConversationEventHandlers
 } from '../actions';
 import moment from 'moment';
-import { uuid } from 'uuidv4';
+import { v4 as uuid } from 'uuid';
 import throttle from 'lodash/throttle';
 import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
