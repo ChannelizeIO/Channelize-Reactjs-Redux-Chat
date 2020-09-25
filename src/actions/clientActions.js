@@ -6,6 +6,8 @@ import {
   DISCONNECT_FAIL,
   TYPING_EVENT,
   NEW_MESSAGE_RECEIVED_EVENT,
+  DELETE_MESSAGE_FOR_EVERYONE_EVENT,
+  DELETE_MESSAGE_EVENT,
   USER_STATUS_UPDATED_EVENT,
   MARK_AS_READ_EVENT,
   USER_BLOCKED_EVENT,
@@ -134,7 +136,27 @@ export const registerEventHandlers = (client) => {
       });
     });
 
-   client.chsocket.on('user.joined', function (response) {
+    client.chsocket.on('message.deleted_for_everyone', function (response) {
+      dispatch({
+        type: DELETE_MESSAGE_FOR_EVERYONE_EVENT,
+        payload: response
+      });
+    });
+
+    client.chsocket.on('user.message_deleted', function (response) {
+      const { conversation } = response;
+      client.Conversation.getConversation(conversation.id, null, (err, conversation) => {
+        if (err) return;
+
+        response.conversation = conversation;
+        dispatch({
+          type: DELETE_MESSAGE_EVENT,
+          payload: response
+        });
+      });
+    });
+
+    client.chsocket.on('user.joined', function (response) {
       // Load conversation will all attributes from server
       const { conversation } = response;
       client.Conversation.getConversation(conversation.id, null, (err, conversation) => {

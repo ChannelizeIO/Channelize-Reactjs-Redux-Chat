@@ -13,7 +13,13 @@ import {
   LOAD_MORE_MESSAGES_FAIL,
   SET_ACTIVE_CONVERSATION,
   SET_ACTIVE_USERID,
-  NEW_MESSAGE_RECEIVED_EVENT
+  NEW_MESSAGE_RECEIVED_EVENT,
+  DELETING_MESSAGES_FOR_EVERYONE,
+  DELETE_MESSAGES_FOR_EVERYONE_FAIL,
+  DELETE_MESSAGES_FOR_EVERYONE_SUCCESS,
+  DELETING_MESSAGES_FOR_ME,
+  DELETE_MESSAGES_FOR_ME_FAIL,
+  DELETE_MESSAGES_FOR_ME_SUCCESS
 } from '../constants';
 
 export const sendFileToConversation = (client, conversation, file, body, attachmentType) => {
@@ -148,6 +154,51 @@ export const loadMoreMessages = (messageListQuery) => {
       dispatch({
         type: LOAD_MORE_MESSAGES_SUCCESS,
         payload: response.reverse()
+      });
+    })
+  };
+};
+
+export const deleteMessagesForEveryone = (client, messageIds) => {
+
+  return dispatch => {
+    dispatch({
+      type: DELETING_MESSAGES_FOR_EVERYONE,
+      payload: messageIds
+    });
+    return client.Message.deleteMessagesForEveryone(messageIds, (err, response) => {
+      if (err) {
+        dispatch({
+          type: DELETE_MESSAGES_FOR_EVERYONE_FAIL,
+          payload: err
+        });
+        return;
+      }
+      dispatch({
+        type: DELETE_MESSAGES_FOR_EVERYONE_SUCCESS,
+        payload: messageIds
+      });
+    })
+  };
+};
+
+export const deleteMessagesForMe = (client, messageIds) => {
+  return dispatch => {
+    dispatch({
+      type: DELETING_MESSAGES_FOR_ME,
+      payload: messageIds
+    });
+    return client.Message.deleteMessagesForMe(messageIds, (err, response) => {
+      if (err) {
+        dispatch({
+          type: DELETE_MESSAGES_FOR_ME_FAIL,
+          payload: err
+        });
+        return;
+      }
+      dispatch({
+        type: DELETE_MESSAGES_FOR_ME_SUCCESS,
+        payload: messageIds
       });
     })
   };

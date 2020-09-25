@@ -20,7 +20,15 @@ import {
   USER_STATUS_UPDATED_EVENT,
   USER_UPDATED_EVENT,
   MARK_AS_READ_EVENT,
-  TYPING_EVENT
+  TYPING_EVENT,
+  DELETE_MESSAGE_EVENT,
+  DELETE_MESSAGE_FOR_EVERYONE_EVENT,
+  DELETING_MESSAGES_FOR_EVERYONE,
+  DELETE_MESSAGES_FOR_EVERYONE_FAIL,
+  DELETE_MESSAGES_FOR_EVERYONE_SUCCESS,
+  DELETING_MESSAGES_FOR_ME,
+  DELETE_MESSAGES_FOR_ME_FAIL,
+  DELETE_MESSAGES_FOR_ME_SUCCESS
 } from '../constants';
 import { createReducer, uniqueList } from '../utils';
 import { Channelize } from 'channelize-chat';
@@ -134,6 +142,54 @@ export const newMessageReceived = (state, action) => {
 
     state.newMessage = message;
   }
+};
+
+export const deleteMessagesForEveryoneEvent = (state, action) => {
+  let conversation = action.payload.conversation;
+  let messages = action.payload.messages;
+  if (state.conversation && state.conversation.id == conversation.id) {
+    let deletedMessageIds = messages.map(msg => msg.id);
+    const finalList = state.list.map(msg => {
+      if (deletedMessageIds.includes(msg.id)) {
+        msg.isDeleted = true;
+        msg.body = "";
+        msg.attachments = [];
+        return msg;
+      } else {
+        return msg;
+      }
+    });
+    state.list = finalList;
+  }
+};
+
+export const deleteMessageEvent = (state, action) => {
+  let conversation = action.payload.conversation;
+  let messages = action.payload.messages;
+  if (state.conversation && state.conversation.id == conversation.id) {
+    let deletedMessageIds = messages.map(msg => msg.id);
+    state.list = [...state.list.filter(msg => !deletedMessageIds.includes(msg.id))];
+  }
+};
+
+export const deleteMessagesForEveryoneSuccess = (state, action) => {
+  const deletedMessageIds = action.payload;
+  const finalList = state.list.map(msg => {
+    if (deletedMessageIds.includes(msg.id)) {
+      msg.isDeleted = true;
+      msg.body = "";
+      msg.attachments = [];
+      return msg;
+    } else {
+      return msg;
+    }
+  });
+  state.list = finalList;
+};
+
+export const deleteMessageForMeSuccess = (state, action) => {
+  const deletedMessageIds = action.payload;
+  state.list = [...state.list.filter(msg => !deletedMessageIds.includes(msg.id))];
 };
 
 export const conversationUpdated = (state, action) => {
@@ -268,7 +324,11 @@ export const handlers = {
   [USER_STATUS_UPDATED_EVENT]: userStatusUpdated,
   [USER_UPDATED_EVENT]: userUpdated,
   [MARK_AS_READ_EVENT]: markAsRead,
-  [TYPING_EVENT]: typingEvent
+  [TYPING_EVENT]: typingEvent,
+  [DELETE_MESSAGE_FOR_EVERYONE_EVENT]: deleteMessagesForEveryoneEvent,
+  [DELETE_MESSAGE_EVENT]: deleteMessageEvent,
+  [DELETE_MESSAGES_FOR_EVERYONE_SUCCESS]: deleteMessagesForEveryoneSuccess,
+  [DELETE_MESSAGES_FOR_ME_SUCCESS]: deleteMessageForMeSuccess
 };
 
 export default createReducer(INITIAL_STATE, handlers);

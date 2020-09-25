@@ -454,7 +454,6 @@ body {
       display: flex;
       flex-direction: column;
       .right {
-        align-self: flex-end;
         .ch-text-message {
           background-color: $ch-conversation-window-user-msg-bg-color;
           color: $ch-conversation-window-user-msg-color;
@@ -462,9 +461,17 @@ body {
         .message-info {
           text-align: right;
         }
+        .ch-msg-content {
+          float: right;
+        }
+        .ch-msg-more-icon {
+          float: left;
+        }
+        .ch-more-options-container {
+          float: left;
+        }
       }
       .left {
-        align-self: flex-start;
         .ch-text-message {
           background-color: $ch-conversation-window-msg-bg-color;
           color: $ch-conversation-window-msg-color;
@@ -482,14 +489,45 @@ body {
         .padding-left {
           padding-left: 40px
         }
+        .ch-msg-more-icon {
+          float: right;
+        }
+        .ch-more-options-container {
+          float: right;
+        }
+        .outside-event {
+          float: right;
+        }
+      }
+      .ch-msg-padding:hover {
+        cursor: pointer;
+        .ch-msg-more-icon i {
+          opacity: 1;
+        }
+      }
+      .ch-more-options-container {
+        box-shadow: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12);
+        z-index: 8;
+        background: #fff;
+        min-width: 100px;
+        max-width: 130px;
+        border-radius: 5px;
+        p {
+          color: #4a505a;
+          padding: 4px 12px;
+          height: auto;
+          margin: 0;
+          line-height: 18px;
+          font-size: 12px;
+        }
+        p:hover {
+          background: rgba(0,0,0,.04);
+          cursor: pointer;
+        }
       }
       .ch-msg-padding {
         padding-top: 8px;
         padding-bottom: 8px;
-        .ch-msg-container {
-          display: flex;
-          align-items: center;
-        }
         .ch__message-livestream__owner-name {
           margin-right: 10px;
           font-weight: bold;
@@ -505,6 +543,13 @@ body {
           border-radius: 50%;
           background-size: cover;
           margin-right: 10px;
+        }
+        .ch-msg-more-icon {
+          display: inline-block;
+          i {
+            color: #969391;
+            opacity: 0;
+          }
         }
         .ch-message-date-separator {
           display: flex;
@@ -531,6 +576,10 @@ body {
           margin-bottom: 0;
           position: relative;
           overflow: hidden;
+          display: inline-block;
+        }
+        .ch-text-message.deleted {
+          font-style: italic;
         }
         .ch-text-message {
           border-radius: 6px 6px 0;
@@ -544,7 +593,6 @@ body {
             min-width: 200px;
             height: 35px;
             padding-top: 10px;
-
             i {
               font-size: 25px;
             }
