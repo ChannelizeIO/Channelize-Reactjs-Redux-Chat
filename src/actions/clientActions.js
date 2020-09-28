@@ -145,6 +145,7 @@ export const registerEventHandlers = (client) => {
 
     client.chsocket.on('user.message_deleted', function (response) {
       const { conversation } = response;
+      // Get the lastest conversation object to handle the last message in the conversation list.
       client.Conversation.getConversation(conversation.id, null, (err, conversation) => {
         if (err) return;
 

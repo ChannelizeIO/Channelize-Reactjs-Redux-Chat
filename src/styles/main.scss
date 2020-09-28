@@ -499,9 +499,9 @@ body {
           float: right;
         }
       }
-      .ch-msg-padding:hover {
+      .ch-msg-padding .ch-msg-more-icon:hover {
         cursor: pointer;
-        .ch-msg-more-icon i {
+        i {
           opacity: 1;
         }
       }
@@ -548,7 +548,7 @@ body {
           display: inline-block;
           i {
             color: #969391;
-            opacity: 0;
+            opacity: 0.4;
           }
         }
         .ch-message-date-separator {

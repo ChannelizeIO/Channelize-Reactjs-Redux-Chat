@@ -6,10 +6,10 @@ import { OutsideClickHandler } from './OutsideClickHandler';
 
 class MessageSimple extends Component {
 	constructor(props) {
-  	super(props);
-  	this.state = {
-  		showMoreOptions: false
-  	}
+	  	super(props);
+	  	this.state = {
+	  		showMoreOptions: false
+  		}
 	}
 
 	downloadFile(url, name) {
@@ -23,17 +23,17 @@ class MessageSimple extends Component {
 	}
 
 	toggleMoreOptions = () => {
-    this.setState((state) => ({
-      showMoreOptions: !state.showMoreOptions
-    }))
-  }
+	    this.setState((state) => ({
+      		showMoreOptions: !state.showMoreOptions
+	    }));
+  	}
 
-  hideMoreOptions = () => {
-  	if (!this.state.showMoreOptions) return;
-    this.setState((state) => ({
-      showMoreOptions: false
-    }))
-  }
+  	hideMoreOptions = () => {
+		if (!this.state.showMoreOptions) return;
+		this.setState((state) => ({
+			showMoreOptions: false
+		}));
+  	}
 
 	render() {
 		const {
@@ -141,7 +141,9 @@ class MessageSimple extends Component {
 								<i className="material-icons" onClick={()=>this.toggleMoreOptions()}>more_vert</i>
 							</div>
 							<OutsideClickHandler onOutsideClick={()=>this.hideMoreOptions()}>
-								{ showMoreOptions && renderMoreOptions && renderMoreOptions()}
+								<div onClick={()=>this.toggleMoreOptions()}>
+									{ showMoreOptions && renderMoreOptions && renderMoreOptions()}
+								</div>
 							</OutsideClickHandler>
 						</div>
 					</div>
