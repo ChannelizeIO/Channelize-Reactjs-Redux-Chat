@@ -2,10 +2,14 @@ import React, { Component } from 'react';
 import { withChannelizeContext } from '../context';
 import { dateSeparatorParser, modifyAdminMessage } from '../utils';
 import { LANGUAGE_PHRASES } from "../constants";
+import { OutsideClickHandler } from './OutsideClickHandler';
 
 class MessageSimple extends Component {
 	constructor(props) {
-  	super(props);
+	  	super(props);
+	  	this.state = {
+	  		showMoreOptions: false
+  		}
 	}
 
 	downloadFile(url, name) {
@@ -18,8 +22,27 @@ class MessageSimple extends Component {
 	  document.body.removeChild(link);
 	}
 
+	toggleMoreOptions = () => {
+	    this.setState((state) => ({
+      		showMoreOptions: !state.showMoreOptions
+	    }));
+  	}
+
+  	hideMoreOptions = () => {
+		if (!this.state.showMoreOptions) return;
+		this.setState((state) => ({
+			showMoreOptions: false
+		}));
+  	}
+
 	render() {
-		const { client, message } = this.props;
+		const {
+			client,
+			message,
+			renderMoreOptions
+		} = this.props;
+		const { showMoreOptions } = this.state;
+
 		const user = client.getCurrentUser();
 
 		// Set class for user/owner message
@@ -97,7 +120,7 @@ class MessageSimple extends Component {
 								<div title={message.owner.displayName} className="ch-message-owner-avatar" style={{backgroundImage:`url(${ownerProfileImageUrl})`}}></div>
 						 	}
 							<div className={`ch-msg-content ${msgContainerPos == 'left' && !message.showOwnerAvatar ? 'padding-left': ''}`}>
-								{ message.body && <div className={`ch-text-message`}>{message.body}</div> }
+								{ message.body && <div className={`ch-text-message ${message.isDeleted ? "deleted" : ""}`}>{message.body}</div> }
 
 								{ fileMessage }
 
@@ -114,6 +137,14 @@ class MessageSimple extends Component {
 									}
 								</div>
 							</div>
+							<div className="ch-msg-more-icon">
+								<i className="material-icons" onClick={()=>this.toggleMoreOptions()}>more_vert</i>
+							</div>
+							<OutsideClickHandler onOutsideClick={()=>this.hideMoreOptions()}>
+								<div onClick={()=>this.toggleMoreOptions()}>
+									{ showMoreOptions && renderMoreOptions && renderMoreOptions()}
+								</div>
+							</OutsideClickHandler>
 						</div>
 					</div>
 				}

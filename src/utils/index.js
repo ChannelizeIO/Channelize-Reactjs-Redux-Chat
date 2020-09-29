@@ -110,7 +110,7 @@ export const modifyMessageList = (client, conversation, list) => {
 
     // Replace body of deleted message
     if(message.isDeleted) {
-      message.body = "<i>" + LANGUAGE_PHRASES.MESSAGE_DELETED + '</i>';
+      message.body = LANGUAGE_PHRASES.MESSAGE_DELETED;
     }
 
     // Set showOwnerAvatar & showDateSeparator props

@@ -15,7 +15,9 @@ import {
   loadMoreMessages as loadMoreMessagesAction,
   setActiveConversation,
   setActiveUserId,
-  registerConversationEventHandlers
+  registerConversationEventHandlers,
+  deleteMessagesForEveryone,
+  deleteMessagesForMe
 } from '../actions';
 import moment from 'moment';
 import { v4 as uuid } from 'uuid';
@@ -322,6 +324,18 @@ class ConversationWindow extends PureComponent {
     });
   }
   
+  deleteMessagesForEveryone(msgId) {
+    if (!msgId) return;
+    const { client } = this.props;
+    this.props.deleteMessagesForEveryone(client, [msgId]);
+  }
+
+  deleteMessagesForMe(msgId) {
+    if (!msgId) return;
+    const { client } = this.props;
+    this.props.deleteMessagesForMe(client, [msgId]);
+  }
+  
   sendMessage() {
     const { conversation, client, userId } = this.props;
     const user = client.getCurrentUser();
@@ -479,7 +493,7 @@ class ConversationWindow extends PureComponent {
     }
 
     // Set header details
-    let actionButton;
+    let headerActionButton;
     let headerTitle;
     let headerImage;
     let headerSubtitle;
@@ -499,9 +513,9 @@ class ConversationWindow extends PureComponent {
 
       // Action buttons
       if(!conversation.isActive) {
-        actionButton = <div id="ch_conv_unblock" onClick={() => this.unblockUser()}>Unblock User</div>
+        headerActionButton = <div id="ch_conv_unblock" onClick={() => this.unblockUser()}>Unblock User</div>
       } else {
-        actionButton = <div id="ch_conv_block" onClick={() => this.blockUser()}>Block User</div>
+        headerActionButton = <div id="ch_conv_block" onClick={() => this.blockUser()}>Block User</div>
       }
     }
 
@@ -515,15 +529,15 @@ class ConversationWindow extends PureComponent {
           profileImageUrl={headerImage}
           title={headerTitle}
           subtitle={headerSubtitle}
-          showChevron={(showChevron && actionButton) ? true : false}
+          showChevron={(showChevron && headerActionButton) ? true : false}
           renderDropDownList={() => {
-            if (!actionButton) {
+            if (!headerActionButton) {
               return
             }
 
             return (
               <div className="ch-drop-down-list">
-                {actionButton}
+                {headerActionButton}
               </div>
             )
           }}
@@ -557,6 +571,14 @@ class ConversationWindow extends PureComponent {
                     key={message.id} 
                     message={message} 
                     onClickEvent={()=>this.viewMediaToggle(message)} 
+                    renderMoreOptions={() => {
+                    return (
+                      <div className="ch-more-options-container">
+                        { message.ownerId == user.id && !message.isDeleted && <p onClick={()=>this.deleteMessagesForEveryone(message.id)}>Delete for everyone</p>}
+                        <p onClick={()=>this.deleteMessagesForMe(message.id)}>Delete for me</p>
+                      </div>
+                    )
+                    }}
                   />
               })
     				}
@@ -636,7 +658,9 @@ ConversationWindow = connect(
     loadMoreMessagesAction,
     setActiveConversation,
     setActiveUserId,
-    registerConversationEventHandlers
+    registerConversationEventHandlers,
+    deleteMessagesForEveryone,
+    deleteMessagesForMe
    }
 )(ConversationWindow);
 

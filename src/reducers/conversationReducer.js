@@ -12,7 +12,9 @@ import {
   MEMBERS_REMOVED_EVENT,
   CONVERSATION_UPDATED_EVENT,
   USER_UPDATED_EVENT,
-  MARK_AS_READ_EVENT
+  MARK_AS_READ_EVENT,
+  DELETE_MESSAGE_FOR_EVERYONE_EVENT,
+  DELETE_MESSAGE_EVENT
 } from '../constants';
 import { createReducer, uniqueList } from '../utils';
 
@@ -118,6 +120,42 @@ export const newMessageReceived = (state, action) => {
   }
 
   state.list = finalList;
+};
+
+export const deleteMessagesForEveryoneEvent = (state, action) => {
+  let messages = action.payload.messages;
+  const finalList = state.list.map((conversation) => {
+    if (conversation.id == action.payload.conversation.id && conversation.lastMessage) {
+      let deletedMessageIds = messages.map(msg => msg.id);
+      if (deletedMessageIds.includes(conversation.lastMessage.id)) {
+        conversation.lastMessage.isDeleted = true;
+        conversation.lastMessage.body = "";
+        conversation.lastMessage.attachments = [];
+        conversation.updatedAt = action.payload.timestamp;
+        return conversation;
+      } else {
+        return conversation;
+      }
+    } else {
+      return conversation;
+    }
+  });
+  
+  state.list = finalList;
+};
+
+export const deleteMessageEvent = (state, action) => {
+  let messages = action.payload.messages;
+  state.list.map((conversation, index) => {
+    if (conversation.id != action.payload.conversation.id || !conversation.lastMessage) {
+      return;
+    }
+    let deletedMessageIds = messages.map(msg => msg.id);
+    if (!deletedMessageIds.includes(conversation.lastMessage.id)) {
+      return;
+    }
+    state.list[index] = action.payload.conversation;
+  });
 };
 
 export const conversationUpdated = (state, action) => {
@@ -255,7 +293,9 @@ export const handlers = {
   [MEMBERS_REMOVED_EVENT]: membersRemoved,
   [CONVERSATION_UPDATED_EVENT]: conversationUpdated,
   [USER_UPDATED_EVENT]: userUpdated,
-  [MARK_AS_READ_EVENT]: markAsRead
+  [MARK_AS_READ_EVENT]: markAsRead,
+  [DELETE_MESSAGE_FOR_EVERYONE_EVENT]: deleteMessagesForEveryoneEvent,
+  [DELETE_MESSAGE_EVENT]: deleteMessageEvent
 };
 
 export default createReducer(INITIAL_STATE, handlers);

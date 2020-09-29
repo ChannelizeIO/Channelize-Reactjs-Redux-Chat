@@ -8,3 +8,4 @@ export { ConversationWindow } from './ConversationWindow';
 export { MessageSimple } from './MessageSimple';
 export { MessageLivestream } from './MessageLivestream';
 export { SearchWindow } from './SearchWindow';
+export { OutsideClickHandler } from './OutsideClickHandler';
