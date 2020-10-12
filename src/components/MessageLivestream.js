@@ -34,41 +34,44 @@ class MessageLivestream extends Component {
 		// Set class for user/owner message
 		let msgContainerPos = "left";  
 
-		let fileMessage = message.attachments.map(attachment => {
-		  switch(attachment.type) {
-			case "image":
-			  return <img className="ch-image-message" src={attachment.thumbnailUrl ? attachment.thumbnailUrl : attachment.fileUr} onClick={()=>this.showImage(attachment.fileUrl)}/>
-			  break;
-			case "video":
-			  return (
-				<div className="ch-video-container">
-				  <img className="ch-image-message" src={attachment.thumbnailUrl} onClick={()=>this.showImage(attachment.fileUrl)}/>
-				  <i className="material-icons ch-video-play-icon">play_circle_outline</i>
-				</div>
-			  );
-			  break;
-		  	case "application":
-			  return (
-				<div className="ch-text-message">
-				  <div className="ch-message-body">
-				  	<div className="ch-docs-data">
-					  <i className="material-icons ch-attachment-icon">description</i>
-					  <span className="ch-docs-name">{attachment.name}</span>
-					  <i className="material-icons ch-docs-download-icon" onClick={() =>this.downloadFile(attachment.fileUrl, attachment.name)}>arrow_downward</i>
+		let fileMessage;
+		if (message.attachments && message.attachments.length) {
+			fileMessage = message.attachments.map(attachment => {
+				switch(attachment.type) {
+				case "image":
+					return <img className="ch-image-message" src={attachment.thumbnailUrl ? attachment.thumbnailUrl : attachment.fileUr} onClick={()=>this.showImage(attachment.fileUrl)}/>
+					break;
+				case "video":
+					return (
+					<div className="ch-video-container">
+						<img className="ch-image-message" src={attachment.thumbnailUrl} onClick={()=>this.showImage(attachment.fileUrl)}/>
+						<i className="material-icons ch-video-play-icon">play_circle_outline</i>
 					</div>
-					<div className="ch-docs-details">
-					  <hr></hr>
-					  <span>{attachment.extension}</span>
+					);
+					break;
+					case "application":
+					return (
+					<div className="ch-text-message">
+						<div className="ch-message-body">
+							<div className="ch-docs-data">
+							<i className="material-icons ch-attachment-icon">description</i>
+							<span className="ch-docs-name">{attachment.name}</span>
+							<i className="material-icons ch-docs-download-icon" onClick={() =>this.downloadFile(attachment.fileUrl, attachment.name)}>arrow_downward</i>
+						</div>
+						<div className="ch-docs-details">
+							<hr></hr>
+							<span>{attachment.extension}</span>
+						</div>
+						</div>
 					</div>
-				  </div>
-				</div>
-			  )
-			  break;
-			default:
-			  return null;
-			  break;
-		  }
-		});
+					)
+					break;
+				default:
+					return null;
+					break;
+				}
+			});
+		}
 
 		const ownerProfileImageUrl = message.owner.profileImageUrl; 
 		return (
@@ -84,7 +87,7 @@ class MessageLivestream extends Component {
 				}
 
 				<div key={message.id} className={`ch-msg-padding ${msgContainerPos}`}>
-					<div className={`ch-msg-container`}>
+					<div className={`ch__message-livestream__container`}>
 						<div title={message.owner.displayName} className="ch-message-owner-avatar" style={{backgroundImage:`url(${ownerProfileImageUrl})`}}></div>
 						<div className="ch__message-livestream__owner-name">{message.owner.displayName}</div>
 						<div className={`ch-msg-content`}>

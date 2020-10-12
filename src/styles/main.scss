@@ -401,10 +401,12 @@ body {
 
 /*conversation style start here*/
 .ch-conv-window {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1;
   height: 100%; 
   width: 100%;
   border: 1px solid rgba(0,0,0,.12);
-  border-top: none;
 
   .ch-header {
     background-color: $ch-conversation-window-header-bg-color;
@@ -440,8 +442,9 @@ body {
     }
   }
   .ch-messages-box {
+    position: relative;
+    height: 100%;
     padding: 15px;
-    height: calc(100% - 147px);
     overflow: auto;
     background-color: $ch-conversation-window-bg-color;
     padding-top: 5px;
@@ -453,6 +456,10 @@ body {
     .ch-msg-list {
       display: flex;
       flex-direction: column;
+      .ch__message-livestream__container {
+        display: flex;
+        align-items: center;
+      }
       .right {
         .ch-text-message {
           background-color: $ch-conversation-window-user-msg-bg-color;
@@ -687,7 +694,7 @@ body {
   .ch-send-box {
     display:flex;
     align-items: center;
-    padding: 8px 10px 0;
+    padding: 8px 10px;
     border-top: 1px solid rgba(90,122,190,.08);
     background: $ch-conversation-window-composer-bg-color;
     font-size: 13px;

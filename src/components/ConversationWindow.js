@@ -34,7 +34,7 @@ class ConversationWindow extends PureComponent {
     this.showMediaLightBox = false;
 
     this.handleChange = this.handleChange.bind(this);
-    this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
     this.onScroll = this.onScroll.bind(this);
     this._markAsRead = throttle(this._markAsRead, 500);
@@ -153,6 +153,17 @@ class ConversationWindow extends PureComponent {
     }
   }
 
+  componentWillUnmount() {
+    const { conversation } = this.props;
+
+    if (!conversation || conversation.type != 'open' || !conversation.__isWatching) {
+      return;
+    }
+
+    // Stop watching open conversation
+    conversation.stopWatching();
+  }
+
   _markAsRead = (conversation) => {
     if (conversation && conversation.config.typing_events) {
       conversation.markAsRead();
@@ -251,8 +262,8 @@ class ConversationWindow extends PureComponent {
     this.setState({text: event.target.value});
   }
 
-  handleKeyUp(event) {
-    if(event.keyCode === 13) {
+  handleKeyPress(event) {
+    if(event.key === 'Enter') {
       event.preventDefault();
       this.sendMessage();
       return;
@@ -472,7 +483,9 @@ class ConversationWindow extends PureComponent {
       disableComposer,
       disableComposerMessage,
       Message,
+      showHeader = true,
       renderHeader,
+      showComposerActions = true,
       typing
     } = this.props;
     const { text, dummyConversation } = this.state;
@@ -524,8 +537,8 @@ class ConversationWindow extends PureComponent {
 
 		return (
   		<div id="ch_conv_window" className="ch-conv-window">
-  			{ conversation && renderHeader && renderHeader(conversation) }
-        { conversation && !renderHeader && <Header
+  			{ conversation && showHeader && renderHeader && renderHeader(conversation) }
+        { conversation && showHeader && !renderHeader && <Header
           profileImageUrl={headerImage}
           title={headerTitle}
           subtitle={headerSubtitle}
@@ -563,7 +576,7 @@ class ConversationWindow extends PureComponent {
 
             { loadingMoreMessages &&  <Loader />}
 
-            { conversation && !list.length && !loading && <div className="center no-record-found">No record Found</div>}
+            { conversation && !list.length && !loading && <div className="center no-record-found">Be first one to start chat!</div>}
 
     				{
     					list.map(message => {
@@ -596,24 +609,28 @@ class ConversationWindow extends PureComponent {
               :
         			<div id="ch_send_box" className="ch-send-box">
 
-                <div className="ch-media-icon-box">
-                  <i title={LANGUAGE_PHRASES.SHARE_GALLERY} className="material-icons ch-attachment-icon">insert_photo</i>
-                  <input id="ch_gallary_input" title={LANGUAGE_PHRASES.SHARE_GALLERY} className="ch-gallary-input" type="file" accept="image/*, video/*" onChange={this.sendMedia} />
-                </div>
+              { showComposerActions &&
+                <>
+                  <div className="ch-media-icon-box">
+                    <i title={LANGUAGE_PHRASES.SHARE_GALLERY} className="material-icons ch-attachment-icon">insert_photo</i>
+                    <input id="ch_gallary_input" title={LANGUAGE_PHRASES.SHARE_GALLERY} className="ch-gallary-input" type="file" accept="image/*, video/*" onChange={this.sendMedia} />
+                  </div>
 
-                <div className="ch-media-icon-box">
-                  <i title={LANGUAGE_PHRASES.SHARE_DOCUMENT} className="material-icons ch-attachment-icon">description</i>
-                  <input id="ch_document_input" title={LANGUAGE_PHRASES.SHARE_DOCUMENT} className="ch-document-input" type="file" accept="application/*,.doc,.docx,.xls,.ppt" onChange={this.sendMedia} />
-                </div>
-
+                  <div className="ch-media-icon-box">
+                    <i title={LANGUAGE_PHRASES.SHARE_DOCUMENT} className="material-icons ch-attachment-icon">description</i>
+                    <input id="ch_document_input" title={LANGUAGE_PHRASES.SHARE_DOCUMENT} className="ch-document-input" type="file" accept="application/*,.doc,.docx,.xls,.ppt" onChange={this.sendMedia} />
+                  </div>
+                </>
+              }
         				<textarea 
                   id="ch_input_box"
                   className="ch-input-box"
                   type="text"
                   placeholder={LANGUAGE_PHRASES.SEND_MESSAGE}
                   value={text}
-                  onChange={this.handleChange} 
-                  onKeyUp={this.handleKeyUp}></textarea>
+                  onKeyPress={(e) => { this.handleKeyPress(e) }}
+                  onChange={(e) => { this.handleChange(e) }} 
+                  ></textarea>
 
       					<button
                   id="ch_send_button"
@@ -641,7 +658,9 @@ ConversationWindow.propTypes = {
 }
 
 ConversationWindow.defaultProps = {
-  Message: MessageSimple
+  Message: MessageSimple,
+  showHeader: true,
+  showComposerActions: true
 };
 
 const mapStateToProps = ({message, client}, ownProps) => {
