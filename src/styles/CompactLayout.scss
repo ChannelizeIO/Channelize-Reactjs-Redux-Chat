@@ -33,6 +33,7 @@ body {
 
 .ch-recent-window {
   box-shadow: rgba(0,0,0,.3) 0 0 1.2em;
+  border: none;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 
@@ -64,9 +65,8 @@ body {
 
 .ch-conv-window {
   box-shadow: rgba(0,0,0,.3) 0 0 1.2em;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-
+  border: none;
+  background: $white-color;
   .ch-messages-box {
     .ch-msg-list {
       .ch-msg-padding {
@@ -104,8 +104,10 @@ body {
 
 .ch-search-window {
   box-shadow: rgba(0,0,0,.3) 0 0 1.2em;
+  border: none;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
+  
   .ch-search-box {
     .ch-search-input-box {
       font-size: 13px;
