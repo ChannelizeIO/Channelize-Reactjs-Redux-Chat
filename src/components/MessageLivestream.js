@@ -87,11 +87,15 @@ class MessageLivestream extends Component {
 				}
 
 				<div key={message.id} className={`ch-msg-padding ${msgContainerPos}`}>
-					<div className={`ch__message-livestream__container`}>
+					<div className={`ch-message-container`}>
 						<div title={message.owner.displayName} className="ch-message-owner-avatar" style={{backgroundImage:`url(${ownerProfileImageUrl})`}}></div>
-						<div className="ch__message-livestream__owner-name">{message.owner.displayName}</div>
-						<div className={`ch-msg-content`}>
-								{ message.body && <div className={`ch__message-livestream__text`}>{message.body}</div> }
+						<div className={`ch-msg-content ch-msg-content__livestream`}>
+								{ message.body && 
+									<div className={`ch-text-message`}>
+										<div className="ch-message-owner-name">{message.owner.displayName}</div>
+										{message.body}
+									</div> 
+								}
 
 								{fileMessage}
 

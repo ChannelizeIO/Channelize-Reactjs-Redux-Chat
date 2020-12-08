@@ -551,6 +551,10 @@ body {
           background-size: cover;
           margin-right: 10px;
         }
+        .ch-message-owner-name {
+          padding: 5px 0;
+          font-weight: 600;
+        }
         .ch-msg-more-icon {
           display: inline-block;
           i {
@@ -584,6 +588,10 @@ body {
           position: relative;
           overflow: hidden;
           display: inline-block;
+          &__livestream {
+            max-width: 80%;
+            width: 100%;
+          }
         }
         .ch-text-message.deleted {
           font-style: italic;

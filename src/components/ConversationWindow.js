@@ -157,11 +157,14 @@ class ConversationWindow extends PureComponent {
     const { conversation } = this.props;
 
     if (!conversation || conversation.type != 'open' || !conversation.__isWatching) {
+      this.props.setActiveConversation(null);
       return;
     }
 
     // Stop watching open conversation
-    conversation.stopWatching();
+    conversation.stopWatching(() => {
+      this.props.setActiveConversation(null);
+    });
   }
 
   _markAsRead = (conversation) => {
