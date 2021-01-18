@@ -2,10 +2,12 @@
 @import './variables';
 
 /*Common style start here*/
-body {
+.channelize-chat {
   margin: 0;
   font-family: $ch-body-font-family;
   font-size: $ch-body-font-size;
+  width: 100%;
+  height: 100%;
 }
 
 .ch-loader {

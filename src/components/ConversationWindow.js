@@ -579,7 +579,7 @@ class ConversationWindow extends PureComponent {
 
             { loadingMoreMessages &&  <Loader />}
 
-            { conversation && !list.length && !loading && <div className="center no-record-found">Be first one to start chat!</div>}
+            { conversation && !list.length && !loading && <div className="center no-record-found">Be the first one to post a message!</div>}
 
     				{
     					list.map(message => {
