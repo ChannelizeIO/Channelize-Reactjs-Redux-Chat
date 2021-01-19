@@ -21,20 +21,21 @@ import {
 
 const _connect = (client, userId, accessToken) => {
   return new Promise((resolve, reject) => {
-    if (!userId) {
-      reject('UserID is required.');
-      return;
-    }
-    if (!accessToken) {
-      reject('accessToken is required.');
-      return;
-    }
-
     if (!client) {
       reject('Channelize.io client was not created.');
     }
 
-    client.connect(userId, accessToken, (error, res) => {
+    if (userId && accessToken) {
+      return client.connect(userId, accessToken, (error, res) => {
+        if (error) {
+          return reject('Channelize.io connection Failed.');
+        } else {
+          return resolve(res);
+        }
+      });
+    }
+
+    client.connectAsAnonymous((error, res) => {
       if (error) {
         reject('Channelize.io connection Failed.');
       } else {

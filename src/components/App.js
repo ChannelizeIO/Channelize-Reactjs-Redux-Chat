@@ -48,7 +48,7 @@ class App extends PureComponent {
 
     return (
       <ChannelizeProvider value={this.getContext()}>
-        { this.props.children }
+        <div className="channelize-chat">{ this.props.children }</div>
       </ChannelizeProvider>
     );
   }

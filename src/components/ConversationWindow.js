@@ -157,11 +157,14 @@ class ConversationWindow extends PureComponent {
     const { conversation } = this.props;
 
     if (!conversation || conversation.type != 'open' || !conversation.__isWatching) {
+      this.props.setActiveConversation(null);
       return;
     }
 
     // Stop watching open conversation
-    conversation.stopWatching();
+    conversation.stopWatching(() => {
+      this.props.setActiveConversation(null);
+    });
   }
 
   _markAsRead = (conversation) => {
@@ -576,7 +579,7 @@ class ConversationWindow extends PureComponent {
 
             { loadingMoreMessages &&  <Loader />}
 
-            { conversation && !list.length && !loading && <div className="center no-record-found">Be first one to start chat!</div>}
+            { conversation && !list.length && !loading && <div className="center no-record-found">Be the first one to post a message!</div>}
 
     				{
     					list.map(message => {

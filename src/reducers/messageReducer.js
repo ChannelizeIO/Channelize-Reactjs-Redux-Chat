@@ -31,7 +31,7 @@ import {
   DELETE_MESSAGES_FOR_ME_SUCCESS
 } from '../constants';
 import { createReducer, uniqueList } from '../utils';
-import { Channelize } from 'channelize-chat';
+// import { Channelize } from 'channelize-chat';
 
 const INITIAL_STATE = {
   list: [],
