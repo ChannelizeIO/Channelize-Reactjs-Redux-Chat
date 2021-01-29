@@ -137,14 +137,19 @@ class MessageSimple extends Component {
 									}
 								</div>
 							</div>
-							<div className="ch-msg-more-icon">
-								<i className="material-icons" onClick={()=>this.toggleMoreOptions()}>more_vert</i>
-							</div>
-							<OutsideClickHandler onOutsideClick={()=>this.hideMoreOptions()}>
-								<div onClick={()=>this.toggleMoreOptions()}>
-									{ showMoreOptions && renderMoreOptions && renderMoreOptions()}
+							{
+								renderMoreOptions && 
+								<React.Fragment>
+								<div className="ch-msg-more-icon">
+									<i className="material-icons" onClick={()=>this.toggleMoreOptions()}>more_vert</i>
 								</div>
-							</OutsideClickHandler>
+								<OutsideClickHandler onOutsideClick={()=>this.hideMoreOptions()}>
+									<div onClick={()=>this.toggleMoreOptions()}>
+										{ showMoreOptions && renderMoreOptions()}
+									</div>
+								</OutsideClickHandler>
+								</React.Fragment>
+							}
 						</div>
 					</div>
 				}

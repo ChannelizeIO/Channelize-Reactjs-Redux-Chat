@@ -9,6 +9,7 @@ import { LANGUAGE_PHRASES, IMAGES } from "../constants";
 import { withChannelizeContext } from '../context';
 import { 
   getMessageList,
+  getPinnedMessageList,
   sendMessageToConversation,
   sendMessageToUserId,
   sendFileToConversation,
@@ -16,6 +17,7 @@ import {
   setActiveConversation,
   setActiveUserId,
   registerConversationEventHandlers,
+  unregisterConversationEventHandlers,
   deleteMessagesForEveryone,
   deleteMessagesForMe
 } from '../actions';
@@ -24,6 +26,7 @@ import { v4 as uuid } from 'uuid';
 import throttle from 'lodash/throttle';
 import debounce from 'lodash/debounce';
 import PropTypes from 'prop-types';
+import { PinnedMessageList } from './PinnedMessageList';
 
 class ConversationWindow extends PureComponent {
 
@@ -126,6 +129,11 @@ class ConversationWindow extends PureComponent {
 
     if ((!prevProps.conversation && conversation) || (prevProps.conversation.id != conversation.id)) {
       this._init();
+
+      // Unregister previous active conversation event handlers
+      if (prevProps.conversation) {
+        this.props.unregisterConversationEventHandlers(prevProps.conversation);
+      }
     }
 
     // Scroll to bottom on initial message loading
@@ -165,6 +173,9 @@ class ConversationWindow extends PureComponent {
     conversation.stopWatching(() => {
       this.props.setActiveConversation(null);
     });
+
+    this.props.unregisterConversationEventHandlers(conversation);
+
   }
 
   _markAsRead = (conversation) => {
@@ -255,6 +266,11 @@ class ConversationWindow extends PureComponent {
     messageListQuery.skip = this.skip;
     this.props.getMessageList(messageListQuery);
 
+    // Load messages
+    let pinnedMessageListQuery = conversation.createMessageListQuery();
+    pinnedMessageListQuery.pinned = true;
+    this.props.getPinnedMessageList(pinnedMessageListQuery);
+    
     // Mark as read conversation
     if (conversation.unreadMessageCount > 0) {
       conversation.markAsRead();
@@ -480,6 +496,8 @@ class ConversationWindow extends PureComponent {
       loading,
       loadingMoreMessages,
       list,
+      pinnedLoading,
+      pinnedList,
       conversation,
       showCloseIcon,
       showChevron,
@@ -497,6 +515,7 @@ class ConversationWindow extends PureComponent {
     if (!conversation) {
       conversation = dummyConversation
       list = [];
+      pinnedList = [];
     }
 
     // Modify message list
@@ -565,6 +584,10 @@ class ConversationWindow extends PureComponent {
               </React.Fragment>
             )
           }}/>
+        }
+
+        {
+          conversation && pinnedList && pinnedList.length > 0 && <PinnedMessageList></PinnedMessageList>
         }
 
         <div id="ch_messages_box" ref={this.chMessageBoxRef} className="ch-messages-box" onScroll={this.onScroll}>
@@ -674,6 +697,7 @@ ConversationWindow = connect(
   mapStateToProps,
    {
     getMessageList,
+    getPinnedMessageList,
     sendMessageToConversation,
     sendMessageToUserId,
     sendFileToConversation,
@@ -681,6 +705,7 @@ ConversationWindow = connect(
     setActiveConversation,
     setActiveUserId,
     registerConversationEventHandlers,
+    unregisterConversationEventHandlers,
     deleteMessagesForEveryone,
     deleteMessagesForMe
    }
