@@ -694,6 +694,26 @@
       margin: 12px 8px;
     }
   }
+  .ch-pinned-messages-box{
+    border-bottom: 1px solid $black;
+    margin-left: 2%;
+    margin-right: 2%;
+    max-height: 20vh;
+    .ch-msg-list {
+      .right {
+        .ch-text-message {
+          background-color: $ch-conversation-window-user-pinned-msg-bg-color;
+          color: $ch-conversation-window-user-pinned-msg-color;
+        }
+      }
+      .left {
+        .ch-text-message {
+          background-color: $ch-conversation-window-user-pinned-msg-bg-color;
+          color: $ch-conversation-window-user-pinned-msg-color;
+        }
+      }
+    }
+  }
   .ch-composer-disabled-box {
     border: 1px solid rgba(0, 0, 0, 0.12);
     text-align: center;

@@ -2,6 +2,9 @@ import {
   LOADING_MESSAGE_LIST,
   MESSAGE_LIST_FAIL,
   MESSAGE_LIST_SUCCESS,
+  LOADING_PINNED_MESSAGE_LIST,
+  PINNED_MESSAGE_LIST_FAIL,
+  PINNED_MESSAGE_LIST_SUCCESS,
   SENDING_MESSAGE,
   SEND_MESSAGE_FAIL,
   SEND_MESSAGE_SUCCESS,
@@ -19,7 +22,9 @@ import {
   DELETE_MESSAGES_FOR_EVERYONE_SUCCESS,
   DELETING_MESSAGES_FOR_ME,
   DELETE_MESSAGES_FOR_ME_FAIL,
-  DELETE_MESSAGES_FOR_ME_SUCCESS
+  DELETE_MESSAGES_FOR_ME_SUCCESS,
+  MESSAGE_PINNED,
+  MESSAGE_UNPINNED,
 } from '../constants';
 
 export const sendFileToConversation = (client, conversation, file, body, attachmentType) => {
@@ -137,6 +142,28 @@ export const getMessageList = (messageListQuery) => {
   };
 };
 
+export const getPinnedMessageList = (pinnedMessageListQuery) => {
+  return dispatch => {
+    dispatch({
+      type: LOADING_PINNED_MESSAGE_LIST,
+      payload: {}
+    });
+    return pinnedMessageListQuery.list((err, response) => {
+      if (err) {
+        dispatch({
+          type: PINNED_MESSAGE_LIST_FAIL,
+          payload: err
+        });
+        return;
+      }
+      dispatch({
+        type: PINNED_MESSAGE_LIST_SUCCESS,
+        payload: response
+      });
+    })
+  };
+};
+
 export const loadMoreMessages = (messageListQuery) => {
   return dispatch => {
     dispatch({
@@ -224,15 +251,38 @@ export const setActiveUserId = (userId) => {
 
 export const registerConversationEventHandlers = (conversation) => {
   return dispatch => {
-    if (!conversation.__isWatching) {
-      return
+    if (conversation.__isWatching) {
+      conversation.on('watcher.message.created', (response) => {
+        dispatch({
+          type: NEW_MESSAGE_RECEIVED_EVENT,
+          payload: response
+        });
+      });
     }
 
-    conversation.on('watcher.message.created', (response) => {
-      dispatch({
-        type: NEW_MESSAGE_RECEIVED_EVENT,
-        payload: response
+    if (conversation.config.pin_messages === true) {
+      conversation.on('message.pinned', (response) => {
+        dispatch({
+          type: MESSAGE_PINNED,
+          payload: response
+        });
+      });  
+
+      conversation.on('message.unpinned', (response) => {
+        dispatch({
+          type: MESSAGE_UNPINNED,
+          payload: response
+        });
       });
-    });
+    }
+
+  }
+}
+
+export const unregisterConversationEventHandlers = (conversation) => {
+  return dispatch => {
+    conversation.off('watcher.message.created');
+    conversation.off('message.pinned');
+    conversation.off('message.unpinned');
   }
 }

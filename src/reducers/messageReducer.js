@@ -2,6 +2,9 @@ import {
   LOADING_MESSAGE_LIST,
   MESSAGE_LIST_FAIL,
   MESSAGE_LIST_SUCCESS,
+  LOADING_PINNED_MESSAGE_LIST,
+  PINNED_MESSAGE_LIST_FAIL,
+  PINNED_MESSAGE_LIST_SUCCESS,
   SENDING_MESSAGE,
   SEND_MESSAGE_FAIL,
   SEND_MESSAGE_SUCCESS,
@@ -28,7 +31,9 @@ import {
   DELETE_MESSAGES_FOR_EVERYONE_SUCCESS,
   DELETING_MESSAGES_FOR_ME,
   DELETE_MESSAGES_FOR_ME_FAIL,
-  DELETE_MESSAGES_FOR_ME_SUCCESS
+  DELETE_MESSAGES_FOR_ME_SUCCESS,
+  MESSAGE_PINNED,
+  MESSAGE_UNPINNED,
 } from '../constants';
 import { createReducer, uniqueList } from '../utils';
 // import { Channelize } from 'channelize-chat';
@@ -65,6 +70,21 @@ export const messageListSuccess = (state, action) => {
 
 export const messageListFail = (state, action) => {
   state.loading = false;
+  state.error = action.payload;
+};
+
+export const loadingPinnedMessageList = (state, action) => {
+  state.pinnedLoading = true;
+  state.pinnedList = [];
+};
+
+export const pinnedMessageListSuccess = (state, action) => {
+  state.pinnedLoading = false;
+  state.pinnedList = action.payload;
+};
+
+export const pinnedMessageListFail = (state, action) => {
+  state.pinnedLoading = false;
   state.error = action.payload;
 };
 
@@ -302,10 +322,28 @@ export const typingEvent = (state, action) => {
   }
 };
 
+export const messagePinned = (state, action) => {
+  let { conversation, message } = action.payload;
+  if (state.conversation && state.conversation.id == conversation.id) {
+    state.pinnedList.unshift(message);
+  }
+};
+
+export const messageUnpinned = (state, action) => {
+  let { conversation, message } = action.payload;
+  if (state.conversation && state.conversation.id == conversation.id) {
+    const index = state.pinnedList.findIndex(item => item.id === message.id);
+    state.pinnedList.splice(index, 1);
+  }
+};
+
 export const handlers = {
   [LOADING_MESSAGE_LIST]: loadingMessageList,
   [MESSAGE_LIST_SUCCESS]: messageListSuccess,
   [MESSAGE_LIST_FAIL]: messageListFail,
+  [LOADING_PINNED_MESSAGE_LIST]: loadingPinnedMessageList,
+  [PINNED_MESSAGE_LIST_SUCCESS]: pinnedMessageListSuccess,
+  [PINNED_MESSAGE_LIST_FAIL]: pinnedMessageListFail,
   [SENDING_MESSAGE]: sendingMessage,
   [SEND_MESSAGE_SUCCESS]: sendMessageSuccess,
   [SEND_MESSAGE_FAIL]: sendMessageFail,
@@ -328,7 +366,9 @@ export const handlers = {
   [DELETE_MESSAGE_FOR_EVERYONE_EVENT]: deleteMessagesForEveryoneEvent,
   [DELETE_MESSAGE_EVENT]: deleteMessageEvent,
   [DELETE_MESSAGES_FOR_EVERYONE_SUCCESS]: deleteMessagesForEveryoneSuccess,
-  [DELETE_MESSAGES_FOR_ME_SUCCESS]: deleteMessageForMeSuccess
+  [DELETE_MESSAGES_FOR_ME_SUCCESS]: deleteMessageForMeSuccess,
+  [MESSAGE_PINNED]: messagePinned,
+  [MESSAGE_UNPINNED]: messageUnpinned,
 };
 
 export default createReducer(INITIAL_STATE, handlers);

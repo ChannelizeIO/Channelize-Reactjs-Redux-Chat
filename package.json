@@ -25,7 +25,7 @@
     "channelize.io"
   ],
   "dependencies": {
-    "channelize-chat": "^4.2.6",
+    "channelize-chat": "^4.4.2",
     "howler": "^2.2.0",
     "lodash": "^4.17.15",
     "moment": "^2.27.0",
