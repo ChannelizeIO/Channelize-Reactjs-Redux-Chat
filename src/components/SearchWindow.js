@@ -12,6 +12,7 @@ import {
   setActiveUserId,
 } from '../actions';
 import debounce from 'lodash/debounce';
+import { UserIcon } from './UserIcon';
 
 class SearchWindow extends PureComponent {
 
@@ -102,6 +103,10 @@ class SearchWindow extends PureComponent {
     }
   }
 
+  renderOnlineIndicator = (user) => {
+    return user.isOnline ? <span className="ch-online-icon ch-show-element"></span> : ''; 
+  }
+
   render() {
     let {
       connecting, 
@@ -149,12 +154,14 @@ class SearchWindow extends PureComponent {
             { !searchText && !loadingFriendsList && <div id="ch_suggested" className="ch-suggested">{LANGUAGE_PHRASES.SUGGESTED}</div>}
 
             {list.map(friend => {
-              const imgUrl = friend.profileImageUrl ? friend.profileImageUrl : IMAGES.AVTAR;
               return (
                 <li key={friend.id} id={friend.id} className="ch-friends-list" onClick={() => this.onContactClick(friend.id)}>
-                  <div className="ch-contact-img" style={{backgroundImage:`url(${imgUrl})`}}>
-                    { friend.isOnline && <span className="ch-online-icon ch-show-element"></span> }
-                  </div>
+                  <UserIcon 
+                    user={friend} 
+                    className="ch-contact-img" 
+                    extraContent={this.renderOnlineIndicator}
+                    extraContentArguments={[friend]} 
+                  ></UserIcon>
                   <div id="ch_friend_name" className="ch-friend-name">{friend.displayName}</div>
                 </li>
               )})
@@ -165,12 +172,14 @@ class SearchWindow extends PureComponent {
             <div id="ch_users_box">
               <div id="ch_more_users" className="ch-more-users">{LANGUAGE_PHRASES.MORE_USERS}</div>
               { moreUsersList.map((user) => {
-                const imgUrl = user.profileImageUrl ? user.profileImageUrl : IMAGES.AVTAR;
                 return (
                   <li key={user.id} id={user.id} className="ch-friends-list" onClick={() => this.onContactClick(user.id)}>
-                    <div className="ch-contact-img" style={{backgroundImage:`url(${imgUrl})`}}>
-                      { user.isOnline && <span className="ch-online-icon ch-show-element"></span> }
-                    </div>
+                    <UserIcon 
+                      user={user} 
+                      className="ch-contact-img" 
+                      extraContent={this.renderOnlineIndicator}
+                      extraContentArguments={[user]} 
+                    ></UserIcon>
                     <div id="ch_friend_name" className="ch-friend-name">{user.displayName}</div>
                   </li>
                 )})

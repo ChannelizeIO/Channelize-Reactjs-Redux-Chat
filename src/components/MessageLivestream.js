@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { withChannelizeContext } from '../context';
 import { dateSeparatorParser } from '../utils'
+import { UserIcon } from "./UserIcon";
+import { LANGUAGE_PHRASES } from "../constants";
 
 class MessageLivestream extends Component {
 	constructor(props) {
@@ -28,8 +30,7 @@ class MessageLivestream extends Component {
 	}
 
 	render() {
-		const { client, message } = this.props;
-		const user = client.getCurrentUser();
+		const { client, message, isMessageByAdmin } = this.props;
 
 		// Set class for user/owner message
 		let msgContainerPos = "left";  
@@ -73,7 +74,6 @@ class MessageLivestream extends Component {
 			});
 		}
 
-		const ownerProfileImageUrl = message.owner.profileImageUrl; 
 		return (
 			<React.Fragment>
 				{ message.showDateSeparator && 
@@ -87,12 +87,16 @@ class MessageLivestream extends Component {
 				}
 
 				<div key={message.id} className={`ch-msg-padding ${msgContainerPos}`}>
-					<div className={`ch-message-container`}>
-						<div title={message.owner.displayName} className="ch-message-owner-avatar" style={{backgroundImage:`url(${ownerProfileImageUrl})`}}></div>
+					<div className={`ch-msg-container ch-msg-container-livestream`}>
+
+						<UserIcon user={message.owner} className="ch-message-owner-avatar"></UserIcon>
+
 						<div className={`ch-msg-content ch-msg-content__livestream`}>
 								{ message.body && 
 									<div className={`ch-text-message`}>
-										<div className="ch-message-owner-name">{message.owner.displayName}</div>
+										<div className="ch-message-owner-name">{message.owner.displayName}
+											{isMessageByAdmin && <span> ({LANGUAGE_PHRASES.HOST})</span>}
+										</div>
 										{message.body}
 									</div> 
 								}

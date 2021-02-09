@@ -537,12 +537,21 @@ class ConversationWindow extends PureComponent {
 
     const user = client.getCurrentUser();
     const typingStrings = typingString(typing);
+    
+    // Store conversation admins for easy comparision later
+    let conversationAdmins = [];
+    if (conversation && conversation.members.length) {
+      conversationAdmins = conversation.members
+      .filter(member => member.isAdmin === true)
+      .map(member => member.userId);
+    }
 
 		return (
   		<div id="ch_conv_window" className="ch-conv-window">
   			{ conversation && showHeader && renderHeader && renderHeader(conversation) }
         { conversation && showHeader && !renderHeader && <Header
           profileImageUrl={headerImage}
+          profileImageAlt={headerTitle}
           title={headerTitle}
           subtitle={headerSubtitle}
           showChevron={(showChevron && headerActionButton) ? true : false}
@@ -586,6 +595,7 @@ class ConversationWindow extends PureComponent {
                 return <Message 
                     key={message.id} 
                     message={message} 
+                    isMessageByAdmin={ conversationAdmins.includes(message.ownerId) }
                     onClickEvent={()=>this.viewMediaToggle(message)} 
                     renderMoreOptions={() => {
                     return (

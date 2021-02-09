@@ -4,6 +4,7 @@ import { lastMessageTimeParser, getLastMessageString } from "../utils";
 import { LANGUAGE_PHRASES, IMAGES } from "../constants";
 import { withChannelizeContext } from '../context';
 import { setActiveConversation } from "../actions";
+import { ConversationIcon } from "./ConversationIcon";
 
 class ConversationItem extends PureComponent {
 
@@ -20,9 +21,17 @@ class ConversationItem extends PureComponent {
     }
   }
 
+  renderOnlineIndicator = () => {
+    const { conversation } = this.props;
+    if(conversation && conversation.user && conversation.user.isOnline) {
+      return <span className="ch-online-icon ch-show-element"></span>
+    }
+    return '';
+  }
+
   render() {
     const { client, activeConversation, conversation } = this.props;
-    let message = conversation.lastMessage;
+    let message = { ...conversation.lastMessage };
 
     // Handle last message
     const lastMessageString = getLastMessageString(client, conversation);
@@ -34,12 +43,6 @@ class ConversationItem extends PureComponent {
       message.time = lastMessageTimeParser(message.updatedAt);
     }
 
-    // Set online icon
-    let onlineIcon;
-    if(conversation.user && conversation.user.isOnline) {
-      onlineIcon = <span className="ch-online-icon ch-show-element"></span>
-    }
-
     let style = {}
     if (activeConversation && activeConversation.id == conversation.id) {
       style = {'backgroundColor': '#fafafa'};
@@ -47,9 +50,12 @@ class ConversationItem extends PureComponent {
 
     return (
       <li style={style} id={conversation.id} onClick={this.selectConversation}>
-          <div className="ch-conversation-image" style={{backgroundImage:`url(${conversation.profileImageUrl})`}}>
-            {onlineIcon}
-          </div>
+
+          <ConversationIcon
+            conversation={conversation}
+            className="ch-conversation-image" 
+            extraContent={this.renderOnlineIndicator}></ConversationIcon>
+
           <div className="ch-conversation-content">
           <div className="ch-conversation-content__upper">
             <div id="ch_title">{conversation.title}</div>
