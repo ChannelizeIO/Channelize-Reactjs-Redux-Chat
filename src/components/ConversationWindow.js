@@ -17,7 +17,9 @@ import {
   setActiveUserId,
   registerConversationEventHandlers,
   deleteMessagesForEveryone,
-  deleteMessagesForMe
+  deleteMessagesForMe,
+  startWatchingAndSetActiveConversation,
+  stopWatchingAndSetNullConversation,
 } from '../actions';
 import moment from 'moment';
 import { v4 as uuid } from 'uuid';
@@ -162,9 +164,7 @@ class ConversationWindow extends PureComponent {
     }
 
     // Stop watching open conversation
-    conversation.stopWatching(() => {
-      this.props.setActiveConversation(null);
-    });
+    this.props.stopWatchingAndSetNullConversation(conversation)
   }
 
   _markAsRead = (conversation) => {
@@ -202,9 +202,7 @@ class ConversationWindow extends PureComponent {
           }
 
           // Start watching open conversation
-          conversation.startWatching((err, res) => {
-            this.props.setActiveConversation(conversation);
-          })
+          this.props.startWatchingAndSetActiveConversation(conversation)
           return;
         }
         if (ownProps.userId) {
@@ -489,7 +487,8 @@ class ConversationWindow extends PureComponent {
       showHeader = true,
       renderHeader,
       showComposerActions = true,
-      typing
+      typing,
+      noRecordFoundError
     } = this.props;
     const { text, dummyConversation } = this.state;
 
@@ -548,7 +547,7 @@ class ConversationWindow extends PureComponent {
 
 		return (
   		<div id="ch_conv_window" className="ch-conv-window">
-  			{ conversation && showHeader && renderHeader && renderHeader(conversation) }
+        { conversation && showHeader && renderHeader && renderHeader(conversation) }
         { conversation && showHeader && !renderHeader && <Header
           profileImageUrl={headerImage}
           profileImageAlt={headerTitle}
@@ -575,7 +574,6 @@ class ConversationWindow extends PureComponent {
             )
           }}/>
         }
-
         <div id="ch_messages_box" ref={this.chMessageBoxRef} className="ch-messages-box" onScroll={this.onScroll}>
           { <div className="ch-conversation-padding"> </div>}
          
@@ -584,9 +582,9 @@ class ConversationWindow extends PureComponent {
           { error && <div className="center error">{error}</div>}
 
           <div className="ch-msg-list">
-            { connected && !conversation && <div className="center no-record-found">No conversation seleted</div>}
+            { connected && !conversation && !loading && noRecordFoundError && <div className="center no-record-found">{noRecordFoundError}</div>}
 
-            { loadingMoreMessages &&  <Loader />}
+            { loadingMoreMessages && <Loader />}
 
             { conversation && !list.length && !loading && <div className="center no-record-found">Be the first one to post a message!</div>}
 
@@ -673,7 +671,8 @@ ConversationWindow.propTypes = {
 ConversationWindow.defaultProps = {
   Message: MessageSimple,
   showHeader: true,
-  showComposerActions: true
+  showComposerActions: true,
+  noRecordFoundError: LANGUAGE_PHRASES.NO_CONVERSATION_SELECTED 
 };
 
 const mapStateToProps = ({message, client}, ownProps) => {
@@ -692,7 +691,9 @@ ConversationWindow = connect(
     setActiveUserId,
     registerConversationEventHandlers,
     deleteMessagesForEveryone,
-    deleteMessagesForMe
+    deleteMessagesForMe,
+    startWatchingAndSetActiveConversation,
+    stopWatchingAndSetNullConversation,
    }
 )(ConversationWindow);
 

@@ -28,7 +28,13 @@ import {
   DELETE_MESSAGES_FOR_EVERYONE_SUCCESS,
   DELETING_MESSAGES_FOR_ME,
   DELETE_MESSAGES_FOR_ME_FAIL,
-  DELETE_MESSAGES_FOR_ME_SUCCESS
+  DELETE_MESSAGES_FOR_ME_SUCCESS,
+  START_WATCHING_PROGRESS,
+  START_WATCHING_FAIL,
+  START_WATCHING_SUCCESS,
+  STOP_WATCHING_PROGRESS,
+  STOP_WATCHING_FAIL,
+  STOP_WATCHING_SUCCESS,
 } from '../constants';
 import { createReducer, uniqueList } from '../utils';
 // import { Channelize } from 'channelize-chat';
@@ -302,6 +308,32 @@ export const typingEvent = (state, action) => {
   }
 };
 
+export const startWatchingProgress = (state, action) => {
+  state.loading = true;
+}
+
+export const startWatchingFail = (state, action) => {
+  state.loading = false;
+  state.error = action.payload;
+}
+
+export const startWatchingSuccess = (state, action) => {
+  state.loading = false;
+}
+
+export const stopWatchingProgress = (state, action) => {
+  state.loading = true;
+}
+
+export const stopWatchingFail = (state, action) => {
+  state.loading = false;
+  state.error = action.payload;
+}
+
+export const stopWatchingSuccess = (state, action) => {
+  state.loading = false;
+}
+
 export const handlers = {
   [LOADING_MESSAGE_LIST]: loadingMessageList,
   [MESSAGE_LIST_SUCCESS]: messageListSuccess,
@@ -328,7 +360,13 @@ export const handlers = {
   [DELETE_MESSAGE_FOR_EVERYONE_EVENT]: deleteMessagesForEveryoneEvent,
   [DELETE_MESSAGE_EVENT]: deleteMessageEvent,
   [DELETE_MESSAGES_FOR_EVERYONE_SUCCESS]: deleteMessagesForEveryoneSuccess,
-  [DELETE_MESSAGES_FOR_ME_SUCCESS]: deleteMessageForMeSuccess
+  [DELETE_MESSAGES_FOR_ME_SUCCESS]: deleteMessageForMeSuccess,
+  [START_WATCHING_PROGRESS]: startWatchingProgress,
+  [START_WATCHING_FAIL]: startWatchingFail,
+  [START_WATCHING_SUCCESS]: startWatchingSuccess,
+  [STOP_WATCHING_PROGRESS]: stopWatchingProgress,
+  [STOP_WATCHING_FAIL]: stopWatchingFail,
+  [STOP_WATCHING_SUCCESS]: stopWatchingSuccess,
 };
 
 export default createReducer(INITIAL_STATE, handlers);
