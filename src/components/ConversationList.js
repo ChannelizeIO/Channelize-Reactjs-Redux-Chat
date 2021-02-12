@@ -120,8 +120,8 @@ class ConversationList extends PureComponent {
     return (
       <div id="ch_recent_window" className="ch-recent-window">
         <Header 
-          profileImageUrl={user && user.profileImageUrl}
-          profileImageAlt={user && user.displayName}
+          imageSrc={user && user.profileImageUrl}
+          imageInitials={user && user.displayName}
           title={LANGUAGE_PHRASES.CHAT}
           renderRight={() => {
             return (

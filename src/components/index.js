@@ -9,5 +9,4 @@ export { MessageSimple } from './MessageSimple';
 export { MessageLivestream } from './MessageLivestream';
 export { SearchWindow } from './SearchWindow';
 export { OutsideClickHandler } from './OutsideClickHandler';
-export { UserIcon } from './UserIcon';
-export { ConversationIcon } from './ConversationIcon';
+export { Avatar } from './Avatar';

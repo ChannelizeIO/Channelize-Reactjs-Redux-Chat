@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
-import { UserIcon } from './UserIcon';
-import Avatar from 'react-avatar';
+import { Avatar } from './Avatar';
 class Header extends PureComponent {
 
   constructor(props) {
@@ -20,8 +19,8 @@ class Header extends PureComponent {
     const { 
       title,
       subtitle,
-      profileImageUrl,
-      profileImageAlt,
+      imageSrc,
+      imageInitials,
       showArrowBack,
       onBack,
       showChevron,
@@ -30,14 +29,12 @@ class Header extends PureComponent {
       callButtons
     } = this.props;
     const { showDropDownList } = this.state;
-    const hasProfileImage = profileImageUrl && profileImageUrl.trim();
 
     return (
     <div id="ch_header" className="ch-header">
       { showArrowBack && <i className="material-icons arrow-back" onClick={onBack}>arrow_back</i>}
 
-      { hasProfileImage && <div className="ch-header-image" title={profileImageAlt} style={{backgroundImage:`url(${profileImageUrl})`}}></div>}
-      { !hasProfileImage && profileImageAlt && <Avatar name={profileImageAlt} className="ch-header-image" maxInitials={2} size={40} round={true} /> }
+      { (imageSrc || imageInitials) && <Avatar src={imageSrc} initials={imageInitials} className="ch-header-image"></Avatar> }
 
       <div className="ch-header_details">
         <div className="ch-header_content">

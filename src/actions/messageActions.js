@@ -255,6 +255,7 @@ export const startWatchingAndSetActiveConversation = (conversation) => {
           type: START_WATCHING_FAIL,
           payload: err
         });
+        return;
       }
       dispatch({
         type: START_WATCHING_SUCCESS,
@@ -280,6 +281,7 @@ export const stopWatchingAndSetNullConversation = (conversation) => {
           type: STOP_WATCHING_FAIL,
           payload: err
         });
+        return;
       }
       dispatch({
         type: STOP_WATCHING_SUCCESS,

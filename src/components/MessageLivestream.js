@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withChannelizeContext } from '../context';
 import { dateSeparatorParser } from '../utils'
-import { UserIcon } from "./UserIcon";
+import { Avatar } from "./Avatar";
 import { LANGUAGE_PHRASES } from "../constants";
 
 class MessageLivestream extends Component {
@@ -30,7 +30,7 @@ class MessageLivestream extends Component {
 	}
 
 	render() {
-		const { client, message, isMessageByAdmin } = this.props;
+		const { client, message, isSentByAdmin } = this.props;
 
 		// Set class for user/owner message
 		let msgContainerPos = "left";  
@@ -89,13 +89,13 @@ class MessageLivestream extends Component {
 				<div key={message.id} className={`ch-msg-padding ${msgContainerPos}`}>
 					<div className={`ch-msg-container ch-msg-container-livestream`}>
 
-						<UserIcon user={message.owner} className="ch-message-owner-avatar"></UserIcon>
+						<Avatar src={message.owner.profileImageUrl} initials={message.owner.displayName} className="ch-message-owner-avatar"></Avatar>
 
 						<div className={`ch-msg-content ch-msg-content__livestream`}>
 								{ message.body && 
 									<div className={`ch-text-message`}>
 										<div className="ch-message-owner-name">{message.owner.displayName}
-											{isMessageByAdmin && <span> ({LANGUAGE_PHRASES.HOST})</span>}
+											{isSentByAdmin && <span> ({LANGUAGE_PHRASES.HOST})</span>}
 										</div>
 										{message.body}
 									</div> 

@@ -488,7 +488,7 @@ class ConversationWindow extends PureComponent {
       renderHeader,
       showComposerActions = true,
       typing,
-      noRecordFoundError
+      noConversationFoundMessage
     } = this.props;
     const { text, dummyConversation } = this.state;
 
@@ -549,8 +549,8 @@ class ConversationWindow extends PureComponent {
   		<div id="ch_conv_window" className="ch-conv-window">
         { conversation && showHeader && renderHeader && renderHeader(conversation) }
         { conversation && showHeader && !renderHeader && <Header
-          profileImageUrl={headerImage}
-          profileImageAlt={headerTitle}
+          imageSrc={headerImage}
+          imageInitials={headerTitle}
           title={headerTitle}
           subtitle={headerSubtitle}
           showChevron={(showChevron && headerActionButton) ? true : false}
@@ -582,7 +582,7 @@ class ConversationWindow extends PureComponent {
           { error && <div className="center error">{error}</div>}
 
           <div className="ch-msg-list">
-            { connected && !conversation && !loading && noRecordFoundError && <div className="center no-record-found">{noRecordFoundError}</div>}
+            { connected && !conversation && !loading && noConversationFoundMessage && <div className="center no-record-found">{noConversationFoundMessage}</div>}
 
             { loadingMoreMessages && <Loader />}
 
@@ -593,7 +593,7 @@ class ConversationWindow extends PureComponent {
                 return <Message 
                     key={message.id} 
                     message={message} 
-                    isMessageByAdmin={ conversationAdmins.includes(message.ownerId) }
+                    isSentByAdmin={ conversationAdmins.includes(message.ownerId) }
                     onClickEvent={()=>this.viewMediaToggle(message)} 
                     renderMoreOptions={() => {
                     return (
@@ -672,7 +672,7 @@ ConversationWindow.defaultProps = {
   Message: MessageSimple,
   showHeader: true,
   showComposerActions: true,
-  noRecordFoundError: LANGUAGE_PHRASES.NO_CONVERSATION_SELECTED 
+  noConversationFoundMessage: LANGUAGE_PHRASES.NO_CONVERSATION_SELECTED 
 };
 
 const mapStateToProps = ({message, client}, ownProps) => {

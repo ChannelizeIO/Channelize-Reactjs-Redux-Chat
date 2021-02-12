@@ -12,7 +12,7 @@ import {
   setActiveUserId,
 } from '../actions';
 import debounce from 'lodash/debounce';
-import { UserIcon } from './UserIcon';
+import { Avatar } from './Avatar';
 
 class SearchWindow extends PureComponent {
 
@@ -103,10 +103,6 @@ class SearchWindow extends PureComponent {
     }
   }
 
-  renderOnlineIndicator = (user) => {
-    return user.isOnline ? <span className="ch-online-icon ch-show-element"></span> : ''; 
-  }
-
   render() {
     let {
       connecting, 
@@ -156,12 +152,13 @@ class SearchWindow extends PureComponent {
             {list.map(friend => {
               return (
                 <li key={friend.id} id={friend.id} className="ch-friends-list" onClick={() => this.onContactClick(friend.id)}>
-                  <UserIcon 
-                    user={friend} 
+                  <Avatar 
+                    src={friend.profileImageUrl}
+                    initials={friend.displayName} 
                     className="ch-contact-img" 
-                    extraContent={this.renderOnlineIndicator}
-                    extraContentArguments={[friend]} 
-                  ></UserIcon>
+                  >
+                    {friend.isOnline && <span className="ch-online-icon ch-show-element"></span>}
+                  </Avatar>
                   <div id="ch_friend_name" className="ch-friend-name">{friend.displayName}</div>
                 </li>
               )})
@@ -174,12 +171,13 @@ class SearchWindow extends PureComponent {
               { moreUsersList.map((user) => {
                 return (
                   <li key={user.id} id={user.id} className="ch-friends-list" onClick={() => this.onContactClick(user.id)}>
-                    <UserIcon 
-                      user={user} 
-                      className="ch-contact-img" 
-                      extraContent={this.renderOnlineIndicator}
-                      extraContentArguments={[user]} 
-                    ></UserIcon>
+                    <Avatar 
+                      src={user.profileImageUrl}
+                      initials={user.displayName} 
+                      className="ch-contact-img"
+                      >
+                        {user.isOnline && <span className="ch-online-icon ch-show-element"></span>}
+                      </Avatar>
                     <div id="ch_friend_name" className="ch-friend-name">{user.displayName}</div>
                   </li>
                 )})

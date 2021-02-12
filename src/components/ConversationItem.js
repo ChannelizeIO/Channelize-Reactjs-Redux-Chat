@@ -1,10 +1,9 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { lastMessageTimeParser, getLastMessageString } from "../utils";
-import { LANGUAGE_PHRASES, IMAGES } from "../constants";
 import { withChannelizeContext } from '../context';
 import { setActiveConversation } from "../actions";
-import { ConversationIcon } from "./ConversationIcon";
+import { Avatar } from "./Avatar";
 
 class ConversationItem extends PureComponent {
 
@@ -19,14 +18,6 @@ class ConversationItem extends PureComponent {
     if (onSelect && typeof onSelect == 'function') {
       onSelect(conversation);
     }
-  }
-
-  renderOnlineIndicator = () => {
-    const { conversation } = this.props;
-    if(conversation && conversation.user && conversation.user.isOnline) {
-      return <span className="ch-online-icon ch-show-element"></span>
-    }
-    return '';
   }
 
   render() {
@@ -51,10 +42,13 @@ class ConversationItem extends PureComponent {
     return (
       <li style={style} id={conversation.id} onClick={this.selectConversation}>
 
-          <ConversationIcon
-            conversation={conversation}
-            className="ch-conversation-image" 
-            extraContent={this.renderOnlineIndicator}></ConversationIcon>
+          <Avatar
+            src={conversation.profileImageUrl}
+            initials={conversation.title}
+            className="ch-conversation-image">
+              { conversation && conversation.user && conversation.user.isOnline && 
+                <span className="ch-online-icon ch-show-element"></span> }
+            </Avatar>
 
           <div className="ch-conversation-content">
           <div className="ch-conversation-content__upper">
