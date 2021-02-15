@@ -17,7 +17,9 @@ import {
   setActiveUserId,
   registerConversationEventHandlers,
   deleteMessagesForEveryone,
-  deleteMessagesForMe
+  deleteMessagesForMe,
+  startWatchingAndSetActiveConversation,
+  stopWatchingAndSetNullConversation,
 } from '../actions';
 import moment from 'moment';
 import { v4 as uuid } from 'uuid';
@@ -162,9 +164,7 @@ class ConversationWindow extends PureComponent {
     }
 
     // Stop watching open conversation
-    conversation.stopWatching(() => {
-      this.props.setActiveConversation(null);
-    });
+    this.props.stopWatchingAndSetNullConversation(conversation)
   }
 
   _markAsRead = (conversation) => {
@@ -202,9 +202,7 @@ class ConversationWindow extends PureComponent {
           }
 
           // Start watching open conversation
-          conversation.startWatching((err, res) => {
-            this.props.setActiveConversation(conversation);
-          })
+          this.props.startWatchingAndSetActiveConversation(conversation)
           return;
         }
         if (ownProps.userId) {
@@ -489,7 +487,8 @@ class ConversationWindow extends PureComponent {
       showHeader = true,
       renderHeader,
       showComposerActions = true,
-      typing
+      typing,
+      noConversationFoundMessage
     } = this.props;
     const { text, dummyConversation } = this.state;
 
@@ -514,8 +513,10 @@ class ConversationWindow extends PureComponent {
     let headerImage;
     let headerSubtitle;
 
+    const user = client.getCurrentUser();
+
     if (conversation) {
-      conversation = modifyConversation(conversation);
+      conversation = modifyConversation(conversation, user);
       headerTitle = conversation.title;
       headerImage = conversation.profileImageUrl;
 
@@ -535,14 +536,22 @@ class ConversationWindow extends PureComponent {
       }
     }
 
-    const user = client.getCurrentUser();
     const typingStrings = typingString(typing);
+    
+    // Store conversation admins for easy comparision later
+    let conversationAdmins = [];
+    if (conversation && conversation.members.length) {
+      conversationAdmins = conversation.members
+      .filter(member => member.isAdmin === true)
+      .map(member => member.userId);
+    }
 
 		return (
   		<div id="ch_conv_window" className="ch-conv-window">
-  			{ conversation && showHeader && renderHeader && renderHeader(conversation) }
+        { conversation && showHeader && renderHeader && renderHeader(conversation) }
         { conversation && showHeader && !renderHeader && <Header
-          profileImageUrl={headerImage}
+          imageSrc={headerImage}
+          imageInitials={headerTitle}
           title={headerTitle}
           subtitle={headerSubtitle}
           showChevron={(showChevron && headerActionButton) ? true : false}
@@ -566,7 +575,6 @@ class ConversationWindow extends PureComponent {
             )
           }}/>
         }
-
         <div id="ch_messages_box" ref={this.chMessageBoxRef} className="ch-messages-box" onScroll={this.onScroll}>
           { <div className="ch-conversation-padding"> </div>}
          
@@ -575,9 +583,9 @@ class ConversationWindow extends PureComponent {
           { error && <div className="center error">{error}</div>}
 
           <div className="ch-msg-list">
-            { connected && !conversation && <div className="center no-record-found">No conversation seleted</div>}
+            { connected && !conversation && !loading && noConversationFoundMessage && <div className="center no-record-found">{noConversationFoundMessage}</div>}
 
-            { loadingMoreMessages &&  <Loader />}
+            { loadingMoreMessages && <Loader />}
 
             { conversation && !list.length && !loading && <div className="center no-record-found">Be the first one to post a message!</div>}
 
@@ -586,6 +594,7 @@ class ConversationWindow extends PureComponent {
                 return <Message 
                     key={message.id} 
                     message={message} 
+                    isSentByAdmin={ conversationAdmins.includes(message.ownerId) }
                     onClickEvent={()=>this.viewMediaToggle(message)} 
                     renderMoreOptions={() => {
                     return (
@@ -663,7 +672,8 @@ ConversationWindow.propTypes = {
 ConversationWindow.defaultProps = {
   Message: MessageSimple,
   showHeader: true,
-  showComposerActions: true
+  showComposerActions: true,
+  noConversationFoundMessage: LANGUAGE_PHRASES.NO_CONVERSATION_SELECTED 
 };
 
 const mapStateToProps = ({message, client}, ownProps) => {
@@ -682,7 +692,9 @@ ConversationWindow = connect(
     setActiveUserId,
     registerConversationEventHandlers,
     deleteMessagesForEveryone,
-    deleteMessagesForMe
+    deleteMessagesForMe,
+    startWatchingAndSetActiveConversation,
+    stopWatchingAndSetNullConversation,
    }
 )(ConversationWindow);
 

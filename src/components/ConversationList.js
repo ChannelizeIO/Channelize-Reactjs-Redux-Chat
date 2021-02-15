@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Header } from "./Header";
 import { ConversationItem} from "./ConversationItem";
 import { Loader } from "./Loader";
-import { LANGUAGE_PHRASES, IMAGES } from "../constants";
+import { LANGUAGE_PHRASES } from "../constants";
 import { connect } from 'react-redux';
 import { withChannelizeContext } from '../context';
 import { 
@@ -114,19 +114,14 @@ class ConversationList extends PureComponent {
     } = this.props;
 
     const user = client.getCurrentUser();
-    let headerImage;
-    if(user && user.profileImageUrl) {
-      headerImage = user.profileImageUrl;
-    } else {
-      headerImage = IMAGES.AVTAR;
-    }
 
-    list = list.map(conversation => modifyConversation(conversation));
+    list = list.map(conversation => modifyConversation(conversation, user));
 
     return (
       <div id="ch_recent_window" className="ch-recent-window">
         <Header 
-          profileImageUrl={headerImage}
+          imageSrc={user && user.profileImageUrl}
+          imageInitials={user && user.displayName}
           title={LANGUAGE_PHRASES.CHAT}
           renderRight={() => {
             return (

@@ -19,7 +19,13 @@ import {
   DELETE_MESSAGES_FOR_EVERYONE_SUCCESS,
   DELETING_MESSAGES_FOR_ME,
   DELETE_MESSAGES_FOR_ME_FAIL,
-  DELETE_MESSAGES_FOR_ME_SUCCESS
+  DELETE_MESSAGES_FOR_ME_SUCCESS,
+  START_WATCHING_PROGRESS,
+  START_WATCHING_FAIL,
+  START_WATCHING_SUCCESS,
+  STOP_WATCHING_PROGRESS,
+  STOP_WATCHING_FAIL,
+  STOP_WATCHING_SUCCESS,
 } from '../constants';
 
 export const sendFileToConversation = (client, conversation, file, body, attachmentType) => {
@@ -236,3 +242,55 @@ export const registerConversationEventHandlers = (conversation) => {
     });
   }
 }
+
+export const startWatchingAndSetActiveConversation = (conversation) => {
+  return dispatch => {
+    dispatch({
+      type: START_WATCHING_PROGRESS,
+      payload: {}
+    });
+    return conversation.startWatching((err, response) => {
+      if (err) {
+        dispatch({
+          type: START_WATCHING_FAIL,
+          payload: err
+        });
+        return;
+      }
+      dispatch({
+        type: START_WATCHING_SUCCESS,
+        payload: response
+      });
+      dispatch({
+        type: SET_ACTIVE_CONVERSATION,
+        payload: conversation
+      });  
+    })
+  };
+};
+
+export const stopWatchingAndSetNullConversation = (conversation) => {
+  return dispatch => {
+    dispatch({
+      type: STOP_WATCHING_PROGRESS,
+      payload: {}
+    });
+    return conversation.stopWatching((err, response) => {
+      if (err) {
+        dispatch({
+          type: STOP_WATCHING_FAIL,
+          payload: err
+        });
+        return;
+      }
+      dispatch({
+        type: STOP_WATCHING_SUCCESS,
+        payload: response
+      });
+      dispatch({
+        type: SET_ACTIVE_CONVERSATION,
+        payload: null
+      });  
+    })
+  };
+};

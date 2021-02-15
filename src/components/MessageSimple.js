@@ -3,6 +3,7 @@ import { withChannelizeContext } from '../context';
 import { dateSeparatorParser, modifyAdminMessage } from '../utils';
 import { LANGUAGE_PHRASES } from "../constants";
 import { OutsideClickHandler } from './OutsideClickHandler';
+import { Avatar } from "./Avatar";
 
 class MessageSimple extends Component {
 	constructor(props) {
@@ -96,7 +97,6 @@ class MessageSimple extends Component {
 			});
 		}
 
-		const ownerProfileImageUrl = message.owner.profileImageUrl; 
 		return (
 			<React.Fragment>
 				{ message.showDateSeparator && 
@@ -115,10 +115,10 @@ class MessageSimple extends Component {
 					</div>
 					:
 					<div key={message.id} className={`ch-msg-padding ${msgContainerPos}`}>
-						<div className={`ch-msg-container`}>
-							{ message.showOwnerAvatar && 
-								<div title={message.owner.displayName} className="ch-message-owner-avatar" style={{backgroundImage:`url(${ownerProfileImageUrl})`}}></div>
-						 	}
+						<div className={`ch-msg-container ch-msg-container-simple`}>
+
+							{ message.showOwnerAvatar && <Avatar src={message.owner.profileImageUrl} initials={message.owner.displayName} className="ch-message-owner-avatar"></Avatar> }
+
 							<div className={`ch-msg-content ${msgContainerPos == 'left' && !message.showOwnerAvatar ? 'padding-left': ''}`}>
 								{ message.body && <div className={`ch-text-message ${message.isDeleted ? "deleted" : ""}`}>{message.body}</div> }
 

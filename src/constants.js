@@ -39,7 +39,9 @@ export const LANGUAGE_PHRASES = {
 	DELETE_FOR_EVERYONE : "Delete for everyone",
 	DOWNLOAD_FILE_NAME : "File",
 	YOU : "You",
-	SEND : "Send"
+	SEND : "Send",
+	HOST : "Host",
+	NO_CONVERSATION_SELECTED: 'No conversation seleted'
 }
 
 export const ADMIN_MSG_FORMATS = {
@@ -74,8 +76,8 @@ export const IMAGES = {
 	LOCATION_ICON : "https://cdn.channelize.io/apps/web-widget/1.0.0/images/location.svg",
 	STICKER_ICON : "https://cdn.channelize.io/apps/web-widget/1.0.0/images/sticker.png",
 	GIF_ICON : "https://cdn.channelize.io/apps/web-widget/1.0.0/images/gif.png",
-	AVTAR : "https://cdn.channelize.io/apps/web-widget/1.0.0/images/avtar.png",
-	GROUP : "https://cdn.channelize.io/apps/web-widget/1.0.0/images/group.png",
+	// AVTAR : "https://cdn.channelize.io/apps/web-widget/1.0.0/images/avtar.png",
+	// GROUP : "https://cdn.channelize.io/apps/web-widget/1.0.0/images/group.png",
 }
 
 export const SETTINGS = {
@@ -143,3 +145,9 @@ export const DELETE_MESSAGES_FOR_EVERYONE_SUCCESS = 'DELETE_MESSAGES_FOR_EVERYON
 export const DELETING_MESSAGES_FOR_ME = 'DELETING_MESSAGES_FOR_ME'
 export const DELETE_MESSAGES_FOR_ME_FAIL = 'DELETE_MESSAGES_FOR_ME_FAIL'
 export const DELETE_MESSAGES_FOR_ME_SUCCESS = 'DELETE_MESSAGES_FOR_ME_SUCCESS'
+export const START_WATCHING_PROGRESS = 'START_WATCHING_PROGRESS'
+export const START_WATCHING_FAIL = 'START_WATCHING_FAIL'
+export const START_WATCHING_SUCCESS = 'START_WATCHING_SUCCESS'
+export const STOP_WATCHING_PROGRESS = 'STOP_WATCHING_PROGRESS'
+export const STOP_WATCHING_FAIL = 'STOP_WATCHING_FAIL'
+export const STOP_WATCHING_SUCCESS = 'STOP_WATCHING_SUCCESS'

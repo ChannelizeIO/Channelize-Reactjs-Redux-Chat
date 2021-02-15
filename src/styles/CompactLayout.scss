@@ -21,6 +21,9 @@ $ch-app-icon-fontsize: 20px;
     width: 30px;
   }
   .ch-header_details {
+    .ch-header_content {
+      width: 75%;
+    }
     .ch-header-title {
 	    font-size: $ch-title-fontsize;
 	  }

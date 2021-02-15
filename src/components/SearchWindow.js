@@ -12,6 +12,7 @@ import {
   setActiveUserId,
 } from '../actions';
 import debounce from 'lodash/debounce';
+import { Avatar } from './Avatar';
 
 class SearchWindow extends PureComponent {
 
@@ -149,12 +150,15 @@ class SearchWindow extends PureComponent {
             { !searchText && !loadingFriendsList && <div id="ch_suggested" className="ch-suggested">{LANGUAGE_PHRASES.SUGGESTED}</div>}
 
             {list.map(friend => {
-              const imgUrl = friend.profileImageUrl ? friend.profileImageUrl : IMAGES.AVTAR;
               return (
                 <li key={friend.id} id={friend.id} className="ch-friends-list" onClick={() => this.onContactClick(friend.id)}>
-                  <div className="ch-contact-img" style={{backgroundImage:`url(${imgUrl})`}}>
-                    { friend.isOnline && <span className="ch-online-icon ch-show-element"></span> }
-                  </div>
+                  <Avatar 
+                    src={friend.profileImageUrl}
+                    initials={friend.displayName} 
+                    className="ch-contact-img" 
+                  >
+                    {friend.isOnline && <span className="ch-online-icon ch-show-element"></span>}
+                  </Avatar>
                   <div id="ch_friend_name" className="ch-friend-name">{friend.displayName}</div>
                 </li>
               )})
@@ -165,12 +169,15 @@ class SearchWindow extends PureComponent {
             <div id="ch_users_box">
               <div id="ch_more_users" className="ch-more-users">{LANGUAGE_PHRASES.MORE_USERS}</div>
               { moreUsersList.map((user) => {
-                const imgUrl = user.profileImageUrl ? user.profileImageUrl : IMAGES.AVTAR;
                 return (
                   <li key={user.id} id={user.id} className="ch-friends-list" onClick={() => this.onContactClick(user.id)}>
-                    <div className="ch-contact-img" style={{backgroundImage:`url(${imgUrl})`}}>
-                      { user.isOnline && <span className="ch-online-icon ch-show-element"></span> }
-                    </div>
+                    <Avatar 
+                      src={user.profileImageUrl}
+                      initials={user.displayName} 
+                      className="ch-contact-img"
+                      >
+                        {user.isOnline && <span className="ch-online-icon ch-show-element"></span>}
+                      </Avatar>
                     <div id="ch_friend_name" className="ch-friend-name">{user.displayName}</div>
                   </li>
                 )})

@@ -1,2 +1,13 @@
 @import './main.scss';
 @import './variables.scss';
+
+.ch-conversation-image, .ch-header-image {
+  .sb-avatar {
+    height: 40px !important;
+    width: 40px !important;
+    .sb-avatar__text {
+        height: 40px !important;
+        width: 40px !important;
+    }
+  }
+}

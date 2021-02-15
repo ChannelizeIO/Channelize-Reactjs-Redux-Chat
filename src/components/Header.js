@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-
+import { Avatar } from './Avatar';
 class Header extends PureComponent {
 
   constructor(props) {
@@ -19,7 +19,8 @@ class Header extends PureComponent {
     const { 
       title,
       subtitle,
-      profileImageUrl,
+      imageSrc,
+      imageInitials,
       showArrowBack,
       onBack,
       showChevron,
@@ -32,7 +33,9 @@ class Header extends PureComponent {
     return (
     <div id="ch_header" className="ch-header">
       { showArrowBack && <i className="material-icons arrow-back" onClick={onBack}>arrow_back</i>}
-      { profileImageUrl && <div className="ch-header-image" style={{backgroundImage:`url(${profileImageUrl})`}}></div>}
+
+      { (imageSrc || imageInitials) && <Avatar src={imageSrc} initials={imageInitials} className="ch-header-image"></Avatar> }
+
       <div className="ch-header_details">
         <div className="ch-header_content">
           { title && 

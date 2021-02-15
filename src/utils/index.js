@@ -27,7 +27,7 @@ export function uniqueList(list) {
   }, []);
 };
 
-export const modifyConversation = (conversation) => {
+export const modifyConversation = (conversation, loginUser) => {
   if (!conversation) {
     return
   }
@@ -37,22 +37,17 @@ export const modifyConversation = (conversation) => {
       conversation.title = conversation.user.displayName;
       if (conversation.user.profileImageUrl) {
         conversation.profileImageUrl = conversation.user.profileImageUrl;
-      } else {
-        conversation.profileImageUrl = IMAGES.AVTAR;
       }
     } else {
       conversation.title = "Deleted User";
-      conversation.profileImageUrl = IMAGES.AVTAR;
     }
-  } else {
-    conversation.profileImageUrl = conversation.profileImageUrl ? conversation.profileImageUrl : IMAGES.GROUP;
   }
 
   // Set conversation members
   conversation.otherMemberIds = [];
   if (conversation.members) {
     conversation.members.map((member) => {
-      if(member.userId != conversation._client.loginUser.id) {
+      if(member.userId != loginUser.id) {
         conversation.otherMemberIds.push(member.userId);
       }
     });
@@ -94,9 +89,6 @@ export const modifyMessageList = (client, conversation, list) => {
         displayName: user.displayName,
         profileImageUrl: user.profileImageUrl
       };
-    }
-    if (!('profileImageUrl' in message.owner)) {
-      message.owner.profileImageUrl = IMAGES.AVTAR
     }
     if (('displayName' in message.owner)) {
       message.owner.displayName = capitalize(message.owner.displayName)

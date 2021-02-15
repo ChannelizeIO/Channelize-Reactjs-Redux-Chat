@@ -9,3 +9,4 @@ export { MessageSimple } from './MessageSimple';
 export { MessageLivestream } from './MessageLivestream';
 export { SearchWindow } from './SearchWindow';
 export { OutsideClickHandler } from './OutsideClickHandler';
+export { Avatar } from './Avatar';

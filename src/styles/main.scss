@@ -201,7 +201,7 @@
 .ch-recent-window {
   height: 100%;
   width: 100%;
-  max-width: 330px;
+  // max-width: 330px;
   background-color: $ch-recent-bg;
   .ch-header {
     background-color: $ch-recent-conversation-header-bg-color;
@@ -309,7 +309,7 @@
 .ch-search-window {
   height: 100%; 
   width: 100%;  
-  max-width: 330px;
+  // max-width: 330px;
   background-color: #fff;
   .ch-header {
     color: $ch-title-color;
@@ -552,6 +552,11 @@
           border-radius: 50%;
           background-size: cover;
           margin-right: 10px;
+        }
+        .ch-msg-container-livestream {
+          .ch-message-owner-avatar {
+            margin-top: 10px;
+          }
         }
         .ch-message-owner-name {
           padding: 5px 0;
