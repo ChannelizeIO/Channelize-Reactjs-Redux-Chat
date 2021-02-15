@@ -27,7 +27,7 @@ export function uniqueList(list) {
   }, []);
 };
 
-export const modifyConversation = (conversation) => {
+export const modifyConversation = (conversation, loginUser) => {
   if (!conversation) {
     return
   }
@@ -47,7 +47,7 @@ export const modifyConversation = (conversation) => {
   conversation.otherMemberIds = [];
   if (conversation.members) {
     conversation.members.map((member) => {
-      if(member.userId != conversation._client.loginUser.id) {
+      if(member.userId != loginUser.id) {
         conversation.otherMemberIds.push(member.userId);
       }
     });

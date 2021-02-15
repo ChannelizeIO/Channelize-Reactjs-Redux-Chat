@@ -115,7 +115,7 @@ class ConversationList extends PureComponent {
 
     const user = client.getCurrentUser();
 
-    list = list.map(conversation => modifyConversation(conversation));
+    list = list.map(conversation => modifyConversation(conversation, user));
 
     return (
       <div id="ch_recent_window" className="ch-recent-window">

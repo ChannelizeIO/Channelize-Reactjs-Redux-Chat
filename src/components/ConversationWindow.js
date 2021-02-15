@@ -513,8 +513,10 @@ class ConversationWindow extends PureComponent {
     let headerImage;
     let headerSubtitle;
 
+    const user = client.getCurrentUser();
+
     if (conversation) {
-      conversation = modifyConversation(conversation);
+      conversation = modifyConversation(conversation, user);
       headerTitle = conversation.title;
       headerImage = conversation.profileImageUrl;
 
@@ -534,7 +536,6 @@ class ConversationWindow extends PureComponent {
       }
     }
 
-    const user = client.getCurrentUser();
     const typingStrings = typingString(typing);
     
     // Store conversation admins for easy comparision later

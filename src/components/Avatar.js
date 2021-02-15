@@ -15,14 +15,7 @@ class Avatar extends PureComponent {
       avatarProps
     } = this.props;
     
-
     const isValidSrc = src && src.trim();
-    if (className === 'ch-header-image') {
-      console.log('isValidSrc');
-      console.log(isValidSrc);  
-      console.log(src);  
-    }
-
     const defaultAvatarProps = {
       maxInitials: 2,
       size: 30,
