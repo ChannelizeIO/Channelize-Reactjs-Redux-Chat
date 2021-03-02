@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Header } from "./Header";
 import { Loader } from "./Loader";
 import { MediaLightBox } from "./MediaLightBox";
+import { GuestLightBox } from "./GuestLightBox";
 import { MessageSimple } from "./MessageSimple";
 import { modifyConversation, modifyMessageList, typingString } from "../utils";
 import { connect } from 'react-redux';
@@ -44,12 +45,16 @@ class ConversationWindow extends PureComponent {
     this._startTyping = throttle(this._startTyping, 3000);
     this._stopTyping = debounce(this._stopTyping, 3000);
 
+    this.toggleGuestLightBox = this.toggleGuestLightBox.bind(this);
+    this.onGuestUpdate = this.onGuestUpdate.bind(this);
+
     this.chMessageBoxRef = React.createRef();
 
     this.state = {
       text: '',
       dummyConversation: null,
-      userId: null
+      userId: null,
+      guestLightBoxOpened: false,
     }
   }
 
@@ -273,6 +278,15 @@ class ConversationWindow extends PureComponent {
     this._onTextMessageChanged(event.target.value);
   }
 
+  toggleGuestLightBox() {
+    this.setState({guestLightBoxOpened: !this.state.guestLightBoxOpened})
+  }
+  
+  async onGuestUpdate(guest) {
+    await this.props.onGuestUpdate(guest)
+    await this.sendMessage();
+  }
+
   _onTextMessageChanged = (textMessage) => {
     if (textMessage) {
       this._startTyping();
@@ -349,9 +363,17 @@ class ConversationWindow extends PureComponent {
   }
   
   sendMessage() {
-    const { conversation, client, userId } = this.props;
+    const { conversation, client, userId, allowGuestUsers } = this.props;
+
+    if (allowGuestUsers && client.isAnonymousUser()) {
+      return this.toggleGuestLightBox();
+    }
+    
     const user = client.getCurrentUser();
     const { text } = this.state;
+
+    if (!text) return;
+
     let body = {
       id: uuid(),
       body: text,
@@ -488,7 +510,8 @@ class ConversationWindow extends PureComponent {
       renderHeader,
       showComposerActions = true,
       typing,
-      noConversationFoundMessage
+      noConversationFoundMessage,
+      allowGuestUsers,
     } = this.props;
     const { text, dummyConversation } = this.state;
 
@@ -644,20 +667,23 @@ class ConversationWindow extends PureComponent {
                   onChange={(e) => { this.handleChange(e) }} 
                   ></textarea>
 
-      					<button
-                  id="ch_send_button"
-                  className="ch-send-button"
-                  title={LANGUAGE_PHRASES.SEND}
-                  onClick={this.sendMessage}
-                >
-                  <i className="ch-send-icon material-icons">send</i>
-                </button>
+                  <button
+                    id="ch_send_button"
+                    className="ch-send-button"
+                    title={LANGUAGE_PHRASES.SEND}
+                    onClick={this.sendMessage}
+                  >
+                    <i className="ch-send-icon material-icons">send</i>
+                  </button>
+
         			</div>
             }
           </React.Fragment>
         }
 
         { this.state.openMediaFile && <MediaLightBox file={this.state.openMediaFile} onCloseClick={()=> this.viewMediaToggle(null)} /> }
+
+        { this.state.guestLightBoxOpened && <GuestLightBox onCloseClick={this.toggleGuestLightBox} onGuestUpdate={this.onGuestUpdate} /> }
   		</div>
 		);
   }
@@ -673,7 +699,8 @@ ConversationWindow.defaultProps = {
   Message: MessageSimple,
   showHeader: true,
   showComposerActions: true,
-  noConversationFoundMessage: LANGUAGE_PHRASES.NO_CONVERSATION_SELECTED 
+  noConversationFoundMessage: LANGUAGE_PHRASES.NO_CONVERSATION_SELECTED, 
+  allowGuestUsers: false
 };
 
 const mapStateToProps = ({message, client}, ownProps) => {

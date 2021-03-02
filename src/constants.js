@@ -41,7 +41,10 @@ export const LANGUAGE_PHRASES = {
 	YOU : "You",
 	SEND : "Send",
 	HOST : "Host",
-	NO_CONVERSATION_SELECTED: 'No conversation seleted'
+	NO_CONVERSATION_SELECTED: 'No conversation seleted',
+	GUEST_JOIN_HEADING: 'Please Enter your Name to join the Live Chat ',
+	GUEST_JOIN_ERROR_DISPLAY_NAME: 'Invalid Name',
+	GUEST_JOIN_LABEL_DISPLAY_NAME: 'Your Name',
 }
 
 export const ADMIN_MSG_FORMATS = {
