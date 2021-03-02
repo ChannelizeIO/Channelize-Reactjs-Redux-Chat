@@ -820,7 +820,7 @@
   .ch-guest-light-box {
     width: 50%;
     height: 50vh;
-    margin: 25vh 25%;
+    margin: 25vh auto;
     display: flex;
     background: white;
     border-radius: 10px;
@@ -840,30 +840,29 @@
       }
     }
     form {
+      width: 100%;
       margin: auto;
       text-align: center;
+      color: #858585;
       .form-heading {
         font-weight: bold;
       }
       .form-element-wrapper {
         padding: 10px;
-        input, label, span {
+        input {
           padding: 8px;
           outline: none;
           border-radius: 4px;
-        }
-        label {
-          font-weight: bold;
-        }
-        input {
+          color: #858585;
           width: 220px;
+          max-width: 80%;
         }
         input:focus{
           outline: none;
         }
         .form-error {
           color: red;
-          font-weight: bold;
+          margin-top: 15px;
         }
         input[type="submit"]{
           background: black;
@@ -872,6 +871,10 @@
           width: 100px;
           font-weight: bold;
           border: 1px solid black;
+        }
+        input[type="submit"]:disabled{
+          background: #858585;
+          border: 1px solid #858585;
         }
       }
     }
