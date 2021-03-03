@@ -852,11 +852,12 @@
         padding: 10px;
         input {
           padding: 8px;
-          outline: none;
           border-radius: 4px;
           color: #858585;
           width: 220px;
           max-width: 80%;
+          border: 1px solid #858585;
+          outline: none;
         }
         .form-error {
           color: red;
