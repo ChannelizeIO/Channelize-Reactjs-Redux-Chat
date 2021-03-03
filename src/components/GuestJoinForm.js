@@ -3,7 +3,7 @@ import { LANGUAGE_PHRASES } from "../constants";
 import { withChannelizeContext } from '../context';
 import PropTypes from 'prop-types';
 import { setCookie } from '../utils';
-class GuestLightBox extends PureComponent {
+class GuestJoinForm extends PureComponent {
 
   constructor(props) {
     super(props);
@@ -17,7 +17,7 @@ class GuestLightBox extends PureComponent {
   }
 
   handleChange(event) {
-    this.setState({ [event.target.name]: event.target.value });
+    this.setState({ [event.target.name]: event.target.value, errors: {} });
   }
 
   validateForm() {
@@ -32,7 +32,7 @@ class GuestLightBox extends PureComponent {
   }
 
   async handleSubmit(event) {
-    const { client, onGuestUpdate, onCloseClick } = this.props;
+    const { client, onJoinedAsGuest, onCloseClick } = this.props;
     const displayName = this.state.displayName.trim();
     event.preventDefault();
     if (!this.validateForm()) {
@@ -41,7 +41,7 @@ class GuestLightBox extends PureComponent {
     this.setState({ joining: true });
     await client.switchToGuest(displayName);
     setCookie('ch_guest_display_name', displayName, 1000)
-    if (onGuestUpdate) await onGuestUpdate(displayName);
+    if (onJoinedAsGuest) await onJoinedAsGuest(displayName);
     this.setState({ joining: false });
     onCloseClick();
   }
@@ -73,11 +73,11 @@ class GuestLightBox extends PureComponent {
   }
 }
 
-GuestLightBox = withChannelizeContext(GuestLightBox);
+GuestJoinForm = withChannelizeContext(GuestJoinForm);
 
-GuestLightBox.propTypes = {
-  onGuestUpdate: PropTypes.func,
+GuestJoinForm.propTypes = {
+  onJoinedAsGuest: PropTypes.func,
   onCloseClick: PropTypes.func,
 }
 
-export { GuestLightBox }
+export { GuestJoinForm }

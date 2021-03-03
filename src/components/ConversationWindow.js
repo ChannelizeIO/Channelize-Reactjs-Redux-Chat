@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Header } from "./Header";
 import { Loader } from "./Loader";
 import { MediaLightBox } from "./MediaLightBox";
-import { GuestLightBox } from "./GuestLightBox";
+import { GuestJoinForm } from "./GuestJoinForm";
 import { MessageSimple } from "./MessageSimple";
 import { modifyConversation, modifyMessageList, typingString } from "../utils";
 import { connect } from 'react-redux';
@@ -45,8 +45,8 @@ class ConversationWindow extends PureComponent {
     this._startTyping = throttle(this._startTyping, 3000);
     this._stopTyping = debounce(this._stopTyping, 3000);
 
-    this.toggleGuestLightBox = this.toggleGuestLightBox.bind(this);
-    this.onGuestUpdate = this.onGuestUpdate.bind(this);
+    this.toggleGuestJoinForm = this.toggleGuestJoinForm.bind(this);
+    this.onJoinedAsGuest = this.onJoinedAsGuest.bind(this);
 
     this.chMessageBoxRef = React.createRef();
 
@@ -54,7 +54,7 @@ class ConversationWindow extends PureComponent {
       text: '',
       dummyConversation: null,
       userId: null,
-      guestLightBoxOpened: false,
+      guestJoinFormOpened: false,
     }
   }
 
@@ -278,12 +278,12 @@ class ConversationWindow extends PureComponent {
     this._onTextMessageChanged(event.target.value);
   }
 
-  toggleGuestLightBox() {
-    this.setState({guestLightBoxOpened: !this.state.guestLightBoxOpened})
+  toggleGuestJoinForm() {
+    this.setState({guestJoinFormOpened: !this.state.guestJoinFormOpened})
   }
   
-  async onGuestUpdate(guest) {
-    await this.props.onGuestUpdate(guest)
+  async onJoinedAsGuest(guest) {
+    await this.props.onJoinedAsGuest(guest)
     await this.sendMessage();
   }
 
@@ -366,7 +366,7 @@ class ConversationWindow extends PureComponent {
     const { conversation, client, userId, allowGuestUsers } = this.props;
 
     if (allowGuestUsers && client.isAnonymousUser()) {
-      return this.toggleGuestLightBox();
+      return this.toggleGuestJoinForm();
     }
     
     const user = client.getCurrentUser();
@@ -683,7 +683,7 @@ class ConversationWindow extends PureComponent {
 
         { this.state.openMediaFile && <MediaLightBox file={this.state.openMediaFile} onCloseClick={()=> this.viewMediaToggle(null)} /> }
 
-        { this.state.guestLightBoxOpened && <GuestLightBox onCloseClick={this.toggleGuestLightBox} onGuestUpdate={this.onGuestUpdate} /> }
+        { this.state.guestJoinFormOpened && <GuestJoinForm onCloseClick={this.toggleGuestJoinForm} onJoinedAsGuest={this.onJoinedAsGuest} /> }
   		</div>
 		);
   }

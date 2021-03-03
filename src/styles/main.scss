@@ -845,7 +845,8 @@
       text-align: center;
       color: #858585;
       .form-heading {
-        font-weight: bold;
+        font-size: 20px;        
+        color: black;
       }
       .form-element-wrapper {
         padding: 10px;
@@ -856,9 +857,6 @@
           color: #858585;
           width: 220px;
           max-width: 80%;
-        }
-        input:focus{
-          outline: none;
         }
         .form-error {
           color: red;
