@@ -10,3 +10,4 @@ export { MessageLivestream } from './MessageLivestream';
 export { SearchWindow } from './SearchWindow';
 export { OutsideClickHandler } from './OutsideClickHandler';
 export { Avatar } from './Avatar';
+export { GuestJoinForm } from './GuestJoinForm';
