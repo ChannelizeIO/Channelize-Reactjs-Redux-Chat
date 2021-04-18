@@ -19,8 +19,11 @@ import {
   registerConversationEventHandlers,
   deleteMessagesForEveryone,
   deleteMessagesForMe,
+  banConversationUsers,
+  unbanConversationUsers,
   startWatchingAndSetActiveConversation,
   stopWatchingAndSetNullConversation,
+  getConversationBanList,
 } from '../actions';
 import moment from 'moment';
 import { v4 as uuid } from 'uuid';
@@ -68,7 +71,7 @@ class ConversationWindow extends PureComponent {
   }
 
   getSnapshotBeforeUpdate(prevProps) {
-    if (prevProps.list.length < this.props.list.length) {
+    if (prevProps.messagelist.length < this.props.messagelist.length) {
       if (!this.chMessageBoxRef) {
         return null;
       }
@@ -136,7 +139,7 @@ class ConversationWindow extends PureComponent {
     }
 
     // Scroll to bottom on initial message loading
-    if (prevProps.loading && !this.props.loading) {
+    if (prevProps.messageLoading && !this.props.messageLoading) {
       this._scrollToTarget()
     }
 
@@ -151,7 +154,7 @@ class ConversationWindow extends PureComponent {
     }
 
     // Scroll to target after load more mesages
-    if(prevProps.list.length < this.props.list.length) {
+    if(prevProps.messagelist.length < this.props.messagelist.length) {
       if (snapshot) {
         const chMessageBoxRef = this.chMessageBoxRef.current;
         const target = chMessageBoxRef.scrollHeight - snapshot.offsetBottom;
@@ -258,6 +261,13 @@ class ConversationWindow extends PureComponent {
     messageListQuery.skip = this.skip;
     this.props.getMessageList(messageListQuery);
 
+    // Load Banned User Listing
+    if (conversation.isGroup && conversation.isAdmin) {
+      let banListQuery = conversation.createBanListQuery();
+      banListQuery.limit = 100;
+      this.props.getConversationBanList(banListQuery);
+    }
+
     // Mark as read conversation
     if (conversation.unreadMessageCount > 0) {
       conversation.markAsRead();
@@ -361,6 +371,18 @@ class ConversationWindow extends PureComponent {
     const { client } = this.props;
     this.props.deleteMessagesForMe(client, [msgId]);
   }
+
+  banConversationUsers(userId) {
+    if (!userId) return;
+    const { client, conversation } = this.props;
+    this.props.banConversationUsers(conversation, [userId]);
+  }
+
+  unbanConversationUsers(userId) {
+    if (!userId) return;
+    const { client, conversation } = this.props;
+    this.props.unbanConversationUsers(conversation, [userId]);
+  }
   
   sendMessage() {
     const { conversation, client, userId, allowGuestUsers } = this.props;
@@ -452,19 +474,19 @@ class ConversationWindow extends PureComponent {
   }
 
   onScroll() {
-    const { list, conversation, loadingMoreMessages, allMessagesLoaded } = this.props;
+    const { messagelist, conversation, loadingMoreMessages, allMessagesLoaded } = this.props;
     if (!conversation) {
       return null
     }
 
     const chMessageBoxRef = this.chMessageBoxRef.current;
-    if (loadingMoreMessages || allMessagesLoaded || list.length < this.limit) {
+    if (loadingMoreMessages || allMessagesLoaded || messagelist.length < this.limit) {
       return
     }
 
     if(chMessageBoxRef.scrollTop < chMessageBoxRef.clientHeight) {
       // Set skip
-      this.skip = list.length;
+      this.skip = messagelist.length;
 
       let messageListQuery = conversation.createMessageListQuery();
       messageListQuery.limit = this.limit;
@@ -496,10 +518,10 @@ class ConversationWindow extends PureComponent {
       client,
       connecting,
       connected,
-      error,
-      loading,
+      messageError,
+      messageLoading,
       loadingMoreMessages,
-      list,
+      messagelist,
       conversation,
       showCloseIcon,
       showChevron,
@@ -512,17 +534,19 @@ class ConversationWindow extends PureComponent {
       typing,
       noConversationFoundMessage,
       allowGuestUsers,
+      banList,
     } = this.props;
+
     const { text, dummyConversation } = this.state;
 
     // Set dummy conversation if conversation doesn't exist
     if (!conversation) {
       conversation = dummyConversation
-      list = [];
+      messagelist = [];
     }
 
     // Modify message list
-    list = modifyMessageList(client, conversation, list);
+    messagelist = modifyMessageList(client, conversation, messagelist);
 
     // Disable composer setting
     let composerDisabled = false;
@@ -556,6 +580,11 @@ class ConversationWindow extends PureComponent {
         headerActionButton = <div id="ch_conv_unblock" onClick={() => this.unblockUser()}>Unblock User</div>
       } else {
         headerActionButton = <div id="ch_conv_block" onClick={() => this.blockUser()}>Block User</div>
+      }
+
+      if(Object.keys(conversation.ban).length) {
+        composerDisabled = true;
+        disableComposerMessage = "You are banned."
       }
     }
 
@@ -601,19 +630,19 @@ class ConversationWindow extends PureComponent {
         <div id="ch_messages_box" ref={this.chMessageBoxRef} className="ch-messages-box" onScroll={this.onScroll}>
           { <div className="ch-conversation-padding"> </div>}
          
-          { (connecting || loading) &&  <div className="center"><Loader /></div>}
+          { (connecting || messageLoading) &&  <div className="center"><Loader /></div>}
 
-          { error && <div className="center error">{error}</div>}
+          { messageError && <div className="center error">{messageError}</div>}
 
           <div className="ch-msg-list">
-            { connected && !conversation && !loading && noConversationFoundMessage && <div className="center no-record-found">{noConversationFoundMessage}</div>}
+            { connected && !conversation && !messageLoading && noConversationFoundMessage && <div className="center no-record-found">{noConversationFoundMessage}</div>}
 
             { loadingMoreMessages && <Loader />}
 
-            { conversation && !list.length && !loading && <div className="center no-record-found">Be the first one to post a message!</div>}
+            { conversation && !messagelist.length && !messageLoading && <div className="center no-record-found">Be the first one to post a message!</div>}
 
     				{
-    					list.map(message => {
+    					messagelist.map(message => {
                 return <Message 
                     key={message.id} 
                     message={message} 
@@ -623,7 +652,23 @@ class ConversationWindow extends PureComponent {
                     return (
                       <div className="ch-more-options-container">
                         { message.ownerId == user.id && !message.isDeleted && <p onClick={()=>this.deleteMessagesForEveryone(message.id)}>Delete for everyone</p>}
-                        <p onClick={()=>this.deleteMessagesForMe(message.id)}>Delete for me</p>
+                        { !["open", "public"].includes(conversation.type) && <p onClick={()=>this.deleteMessagesForMe(message.id)}>Delete for me</p> }
+                        { 
+                          message.ownerId != user.id &&
+                          // !Object.keys(conversation.ban).length && 
+                          conversation.isGroup && 
+                          conversation.isAdmin && 
+                          !banList.find(user => user.userId == message.ownerId) && 
+                          <p onClick={()=> this.banConversationUsers(message.ownerId)}>Ban User</p>
+                        }
+                        { 
+                          message.ownerId != user.id &&
+                          // !Object.keys(conversation.ban).length && 
+                          conversation.isGroup && 
+                          conversation.isAdmin && 
+                          banList.find(user => user.userId == message.ownerId) && 
+                          <p onClick={()=> this.unbanConversationUsers(message.ownerId)}>Unban User</p>
+                        }
                       </div>
                     )
                     }}
@@ -703,8 +748,9 @@ ConversationWindow.defaultProps = {
   allowGuestUsers: false
 };
 
-const mapStateToProps = ({message, client}, ownProps) => {
-  return {...message, ...client, ownProps: ownProps}
+const mapStateToProps = ({message, conversation, client}, ownProps) => {
+  // return {...message, ...client, ownProps: ownProps}
+  return {...message, ...conversation, ...client, ownProps: ownProps}
 }
 
 ConversationWindow = connect(
@@ -720,8 +766,11 @@ ConversationWindow = connect(
     registerConversationEventHandlers,
     deleteMessagesForEveryone,
     deleteMessagesForMe,
+    banConversationUsers,
+    unbanConversationUsers,
     startWatchingAndSetActiveConversation,
     stopWatchingAndSetNullConversation,
+    getConversationBanList,
    }
 )(ConversationWindow);
 

@@ -32,7 +32,7 @@ class ConversationList extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { client, connected, activeConversation, list } = this.props;
+    const { client, connected, activeConversation, conversationlist } = this.props;
     if (!connected) {
       return
     }
@@ -44,15 +44,15 @@ class ConversationList extends PureComponent {
     }
 
     // Set a conversation active
-    if (!activeConversation && list.length) {
-      this.props.setActiveConversation(list[0]);
+    if (!activeConversation && conversationlist.length) {
+      this.props.setActiveConversation(conversationlist[0]);
     }
   }
 
   _init = () => {
-    const { client, list } = this.props;
+    const { client, conversationlist } = this.props;
 
-    if (list.length) {
+    if (conversationlist.length) {
       return;
     }
 
@@ -79,16 +79,16 @@ class ConversationList extends PureComponent {
   }
 
   onScroll() {
-    const { list, client, loadingMoreConversations, allConversationsLoaded } = this.props;
+    const { conversationlist, client, loadingMoreConversations, allConversationsLoaded } = this.props;
     const chRecentListingRef = this.chRecentListingRef.current;
 
-    if (loadingMoreConversations || allConversationsLoaded || list.length < this.limit) {
+    if (loadingMoreConversations || allConversationsLoaded || conversationlist.length < this.limit) {
       return
     }
 
     if(chRecentListingRef.scrollTop + chRecentListingRef.clientHeight == chRecentListingRef.scrollHeight) {
       // Set skip
-      this.skip = list.length;
+      this.skip = conversationlist.length;
 
       let conversationListQuery = client.Conversation.createConversationListQuery();
       conversationListQuery.limit = this.limit;
@@ -100,11 +100,11 @@ class ConversationList extends PureComponent {
   render() {
     let { 
       client,
-      list,
+      conversationlist,
       connecting,
       connected,
-      loading,
-      error,
+      conversationLoading,
+      conversationError,
       loadingMoreConversations,
       showSearchIcon,
       onSearchIconClick,
@@ -115,7 +115,7 @@ class ConversationList extends PureComponent {
 
     const user = client.getCurrentUser();
 
-    list = list.map(conversation => modifyConversation(conversation, user));
+    conversationlist = conversationlist.map(conversation => modifyConversation(conversation, user));
 
     return (
       <div id="ch_recent_window" className="ch-recent-window">
@@ -133,15 +133,15 @@ class ConversationList extends PureComponent {
           }}/>
 
         <div id="ch_recent_listing" className="ch-recent-listing"  ref={this.chRecentListingRef} onScroll={this.onScroll}>
-          { (connecting || loading) &&  <div className="center"><Loader /></div>}
+          { (connecting || conversationLoading) &&  <div className="center"><Loader /></div>}
 
-          { error && <div className="center error">{error}</div>}
+          { conversationError && <div className="center error">{conversationError}</div>}
 
-          { connected && !list.length && !loading && <div className="center no-record-found">No record Found</div>}
+          { connected && !conversationlist.length && !conversationLoading && <div className="center no-record-found">No record Found</div>}
 
           <ul id="ch_recent_ul" className="ch-recent-ul">
             {
-              list.map((conversation) => {
+              conversationlist.map((conversation) => {
                 return <ConversationItem 
                   key={conversation.id} 
                   activeConversation={activeConversation} 

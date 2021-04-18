@@ -14,30 +14,34 @@ import {
   USER_UPDATED_EVENT,
   MARK_AS_READ_EVENT,
   DELETE_MESSAGE_FOR_EVERYONE_EVENT,
-  DELETE_MESSAGE_EVENT
+  DELETE_MESSAGE_EVENT,
+  CONVERSATION_BAN_LIST_SUCCESS,
+  BAN_CONVERSATION_USERS_SUCCESS,
+  UNBAN_CONVERSATION_USERS_SUCCESS,
 } from '../constants';
 import { createReducer, uniqueList } from '../utils';
 
 const INITIAL_STATE = {
-  list: [],
-  loading: false,
+  conversationlist: [],
+  conversationLoading: false,
   loadingMoreConversations: false,
   allConversationsLoaded: false,
-  error: null
+  conversationError: null,
+  banList: [],
 };
 
 export const loadingConversationList = (state, action) => {
-  state.loading = true;
+  state.conversationLoading = true;
 };
 
 export const listConversationSuccess = (state, action) => {
-  state.loading = false;
-  state.list = action.payload;
+  state.conversationLoading = false;
+  state.conversationlist = action.payload;
 };
 
 export const listConversationFail = (state, action) => {
-  state.loading = false;
-  state.error = action.payload;
+  state.conversationLoading = false;
+  state.conversationError = action.payload;
 };
 
 export const loadingLoadMoreConversations = (state, action) => {
@@ -49,19 +53,19 @@ export const loadMoreConversationsSuccess = (state, action) => {
   if (!action.payload.length) {
     state.allConversationsLoaded = true;
   } else {
-    state.list = [...state.list, ...action.payload];
-    state.list = uniqueList(state.list);
+    state.conversationlist = [...state.conversationlist, ...action.payload];
+    state.conversationlist = uniqueList(state.conversationlist);
   }
 };
 
 export const loadMoreConversationsFail = (state, action) => {
   state.loadingMoreConversations = false;
-  state.error = action.payload;
+  state.conversationError = action.payload;
 };
 
 export const userStatusUpdated = (state, action) => {
   let user = action.payload.user;
-  const finalList = state.list.map((conversation, index) => {
+  const finalList = state.conversationlist.map((conversation, index) => {
     if (!conversation.isGroup && conversation.user.id == user.id) {
       conversation.user.isOnline = user.isOnline;
       conversation.user.lastSeen = user.lastSeen;
@@ -72,12 +76,12 @@ export const userStatusUpdated = (state, action) => {
     }
   })
 
-  state.list = finalList;
+  state.conversationlist = finalList;
 };
 
 export const userUpdated = (state, action) => {
   let user = action.payload.user;
-  const finalList = state.list.map((conversation, index) => {
+  const finalList = state.conversationlist.map((conversation, index) => {
     if (!conversation.isGroup && conversation.user.id == user.id) {
       conversation.user.isOnline = user.isOnline;
       conversation.user.lastSeen = user.lastSeen;
@@ -90,7 +94,7 @@ export const userUpdated = (state, action) => {
     }
   })
 
-  state.list = finalList;
+  state.conversationlist = finalList;
 };
 
 export const newMessageReceived = (state, action) => {
@@ -99,7 +103,7 @@ export const newMessageReceived = (state, action) => {
   let conversationIndex;
   let latestConversation;
 
-  const finalList = state.list.map((conversation, index) => {
+  const finalList = state.conversationlist.map((conversation, index) => {
     if (conversation.id == message.conversationId) {
       conversation.lastMessage = message;
       conversation.updatedAt = action.payload.timestamp;
@@ -119,12 +123,12 @@ export const newMessageReceived = (state, action) => {
     finalList.unshift(latestConversation);
   }
 
-  state.list = finalList;
+  state.conversationlist = finalList;
 };
 
 export const deleteMessagesForEveryoneEvent = (state, action) => {
   let messages = action.payload.messages;
-  const finalList = state.list.map((conversation) => {
+  const finalList = state.conversationlist.map((conversation) => {
     if (conversation.id == action.payload.conversation.id && conversation.lastMessage) {
       let deletedMessageIds = messages.map(msg => msg.id);
       if (deletedMessageIds.includes(conversation.lastMessage.id)) {
@@ -141,12 +145,12 @@ export const deleteMessagesForEveryoneEvent = (state, action) => {
     }
   });
   
-  state.list = finalList;
+  state.conversationlist = finalList;
 };
 
 export const deleteMessageEvent = (state, action) => {
   let messages = action.payload.messages;
-  state.list.map((conversation, index) => {
+  state.conversationlist.map((conversation, index) => {
     if (conversation.id != action.payload.conversation.id || !conversation.lastMessage) {
       return;
     }
@@ -154,7 +158,7 @@ export const deleteMessageEvent = (state, action) => {
     if (!deletedMessageIds.includes(conversation.lastMessage.id)) {
       return;
     }
-    state.list[index] = action.payload.conversation;
+    state.conversationlist[index] = action.payload.conversation;
   });
 };
 
@@ -164,7 +168,7 @@ export const conversationUpdated = (state, action) => {
   let conversationIndex;
   let latestConversation;
 
-  const finalList = state.list.map((item, index) => {
+  const finalList = state.conversationlist.map((item, index) => {
     if (item.id == conversation.id) {
       item.title = conversation.title;
       item.profileImageUrl = conversation.profileImageUrl;
@@ -185,13 +189,13 @@ export const conversationUpdated = (state, action) => {
     finalList.unshift(latestConversation);
   }
 
-  state.list = finalList;
+  state.conversationlist = finalList;
 };
 
 export const userJoined = (state, action) => {
   const { conversation } = action.payload;
-  state.list = [...[conversation], ...state.list];
-  state.list = uniqueList(state.list);
+  state.conversationlist = [...[conversation], ...state.conversationlist];
+  state.conversationlist = uniqueList(state.conversationlist);
 };
 
 export const membersAdded = (state, action) => {
@@ -200,7 +204,7 @@ export const membersAdded = (state, action) => {
   let conversationIndex;
   let latestConversation;
 
-  const finalList = state.list.map((item, index) => {
+  const finalList = state.conversationlist.map((item, index) => {
     if (item.id == conversation.id) {
       item.memberCount = conversation.memberCount;
       item.updatedAt = timestamp;
@@ -221,7 +225,7 @@ export const membersAdded = (state, action) => {
     finalList.unshift(latestConversation);
   }
 
-  state.list = finalList;
+  state.conversationlist = finalList;
 };
 
 export const membersRemoved = (state, action) => {
@@ -230,7 +234,7 @@ export const membersRemoved = (state, action) => {
   let conversationIndex;
   let latestConversation;
 
-  const finalList = state.list.map((item, index) => {
+  const finalList = state.conversationlist.map((item, index) => {
     if (item.id == conversation.id) {
       item.memberCount = conversation.memberCount;
       item.updatedAt = timestamp;
@@ -258,13 +262,13 @@ export const membersRemoved = (state, action) => {
     finalList.unshift(latestConversation);
   }
 
-  state.list = finalList;
+  state.conversationlist = finalList;
 };
 
 export const markAsRead = (state, action) => {
   let { conversation, user, timestamp } = action.payload;
 
-  const finalList = state.list.map((item, index) => {
+  const finalList = state.conversationlist.map((item, index) => {
     if (item.id == conversation.id) {
       if (item.lastReadAt[user.id]) {
         item.lastReadAt[user.id] = timestamp;
@@ -276,7 +280,35 @@ export const markAsRead = (state, action) => {
     }
   })
 
-  state.list = finalList;
+  state.conversationlist = finalList;
+}
+
+export const conversationBanListSuccess = (state, action) => {
+  state.banList = action.payload;
+}
+
+export const banConversationUserSuccess = (state, action) => {
+  const { conversation, userIds } = action.payload;
+
+  const banUserList = userIds.map(userId => {
+    return {userId};
+  });
+
+  const finalList = [...state.banList, ...banUserList];
+  state.banList = finalList;
+}
+
+export const unbanConversationUserSuccess = (state, action) => {
+  const { conversation, userIds } = action.payload;
+
+  const finalList = [];
+  state.banList.forEach((user) => {
+    if (!userIds.includes(user.userId)) {
+      finalList.push(user);
+    }
+  });
+  
+  state.banList = finalList;
 }
 
 export const handlers = {
@@ -295,7 +327,11 @@ export const handlers = {
   [USER_UPDATED_EVENT]: userUpdated,
   [MARK_AS_READ_EVENT]: markAsRead,
   [DELETE_MESSAGE_FOR_EVERYONE_EVENT]: deleteMessagesForEveryoneEvent,
-  [DELETE_MESSAGE_EVENT]: deleteMessageEvent
+  [DELETE_MESSAGE_EVENT]: deleteMessageEvent,
+
+  [CONVERSATION_BAN_LIST_SUCCESS]: conversationBanListSuccess,
+  [BAN_CONVERSATION_USERS_SUCCESS]: banConversationUserSuccess,
+  [UNBAN_CONVERSATION_USERS_SUCCESS]: unbanConversationUserSuccess,
 };
 
 export default createReducer(INITIAL_STATE, handlers);
