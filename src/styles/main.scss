@@ -534,6 +534,9 @@
           cursor: pointer;
         }
       }
+      .ch-more-options-container:empty {
+        display: none;
+      }
       .ch-msg-padding {
         padding-top: 8px;
         padding-bottom: 8px;
@@ -596,7 +599,7 @@
           overflow: hidden;
           display: inline-block;
           &__livestream {
-            max-width: 80%;
+            max-width: 75%;
             width: 100%;
           }
         }
@@ -883,4 +886,80 @@
 /* Set cursor pointer on choose file in chrome */
 input[type=file]::-webkit-file-upload-button { 
   cursor: pointer; 
+}
+
+.react-tabs__tab-list {
+  z-index: 10000;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  background-color: yellow;
+  font-size: 20px;
+  text-align: center;
+}
+
+.react-tabs__tab--selected {
+  border-color: #aaa;
+  width: 45%;
+}
+
+.conversation-window-tabs {
+  display: flex;
+  height: 40px;
+  align-items: stretch;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.conversation-window-tabs > button {
+  width: 800px;
+  text-align: center;
+  height: 40px;
+  font-size: 15px;
+  background-color: #c5c3c3;
+  border: 1px solid;
+  margin-top: 0px;
+  outline: none;
+}
+
+.conversation-window-tabs {
+  button.active {
+    background-color: white;
+    font-weight: 600;
+  }
+  button.chat {
+    border-top-right-radius: 10px;
+  }
+  button.manage {
+    border-top-left-radius: 10px;
+  }
+}
+
+.conversation-window-manage {
+  ul {
+    margin: 0px 20px;
+    padding: 0px;
+  }
+  li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 20px;
+    cursor: pointer;
+    list-style: none;
+    padding: 15px;
+    border-bottom: 1px solid #edeff5;
+    background-color: $white-color;
+    .title {
+      color: $dark-gray;
+      width: 70%;
+      font-weight: 600;
+    }
+    .action {
+      color: blue;
+      width: 20%;
+      font-weight: 600;
+      text-decoration: underline;
+    }
+  }
 }

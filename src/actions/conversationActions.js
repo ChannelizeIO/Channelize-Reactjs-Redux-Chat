@@ -82,7 +82,7 @@ export const getConversationBanList = (conversationBanListQuery) => {
   };
 };
 
-export const banConversationUsers = (conversation, userIds) => {
+export const banConversationUsers = (conversation, userIds, displayName) => {
   return dispatch => {
     dispatch({
       type: BAN_CONVERSATION_USERS,
@@ -98,7 +98,7 @@ export const banConversationUsers = (conversation, userIds) => {
       }
       dispatch({
         type: BAN_CONVERSATION_USERS_SUCCESS,
-        payload: { conversation, userIds}
+        payload: { conversation, userIds, displayName}
       });
     });
   };

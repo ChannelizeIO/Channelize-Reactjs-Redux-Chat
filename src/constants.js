@@ -45,6 +45,9 @@ export const LANGUAGE_PHRASES = {
 	GUEST_JOIN_HEADING: 'Enter your name to join the Chat',
 	GUEST_JOIN_ERROR_DISPLAY_NAME: 'Please enter a valid name',
 	GUEST_JOIN_LABEL_DISPLAY_NAME: 'Enter your name here',
+	BAN_USER: 'Ban User',
+	UNBAN_USER: 'Unban User',
+	BAN_USER_MESSAGE: 'You are banned.',
 }
 
 export const ADMIN_MSG_FORMATS = {

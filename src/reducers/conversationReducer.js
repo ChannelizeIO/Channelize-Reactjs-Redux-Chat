@@ -288,10 +288,10 @@ export const conversationBanListSuccess = (state, action) => {
 }
 
 export const banConversationUserSuccess = (state, action) => {
-  const { conversation, userIds } = action.payload;
+  const { conversation, userIds, displayName } = action.payload;
 
   const banUserList = userIds.map(userId => {
-    return {userId};
+    return {userId, user: {displayName}};
   });
 
   const finalList = [...state.banList, ...banUserList];
