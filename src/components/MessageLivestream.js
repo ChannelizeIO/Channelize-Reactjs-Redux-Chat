@@ -35,6 +35,8 @@ class MessageLivestream extends Component {
 		// Set class for user/owner message
 		let msgContainerPos = "left";  
 
+		let adminMsg = message.type === "admin" ? true : false;
+
 		let fileMessage;
 		if (message.attachments && message.attachments.length) {
 			fileMessage = message.attachments.map(attachment => {
@@ -86,26 +88,34 @@ class MessageLivestream extends Component {
 					</div>
 				}
 
-				<div key={message.id} className={`ch-msg-padding ${msgContainerPos}`}>
-					<div className={`ch-msg-container ch-msg-container-livestream`}>
+				{ adminMsg ?
+					<div className="ch-admin-msg-container">
+						<span className="ch-admin-msg">{message.text}</span>
+					</div>
+					:
 
-						<Avatar src={message.owner.profileImageUrl} initials={message.owner.displayName} className="ch-message-owner-avatar"></Avatar>
 
-						<div className={`ch-msg-content ch-msg-content__livestream`}>
-								{ message.body && 
-									<div className={`ch-text-message`}>
-										<div className="ch-message-owner-name">{message.owner.displayName}
-											{isSentByAdmin && <span> ({LANGUAGE_PHRASES.HOST})</span>}
-										</div>
-										{message.body}
-									</div> 
-								}
+					<div key={message.id} className={`ch-msg-padding ${msgContainerPos}`}>
+						<div className={`ch-msg-container ch-msg-container-livestream`}>
 
-								{fileMessage}
+							<Avatar src={message.owner.profileImageUrl} initials={message.owner.displayName} className="ch-message-owner-avatar"></Avatar>
 
+							<div className={`ch-msg-content ch-msg-content__livestream`}>
+									{ message.body && 
+										<div className={`ch-text-message`}>
+											<div className="ch-message-owner-name">{message.owner.displayName}
+												{isSentByAdmin && <span> ({LANGUAGE_PHRASES.HOST})</span>}
+											</div>
+											{message.body}
+										</div> 
+									}
+
+									{fileMessage}
+
+								</div>
 							</div>
 						</div>
-					</div>
+				}
 			</React.Fragment>
 		);
 	}
