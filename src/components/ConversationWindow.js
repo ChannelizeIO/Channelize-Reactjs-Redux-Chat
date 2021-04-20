@@ -668,7 +668,8 @@ class ConversationWindow extends PureComponent {
                       key={message.id} 
                       message={message} 
                       isSentByAdmin={ conversationAdmins.includes(message.ownerId) }
-                      onClickEvent={()=>this.viewMediaToggle(message)} 
+                      onClickEvent={()=>this.viewMediaToggle(message)}
+                      showMoreOptionsIcon={["open"].includes(conversation.type) && !conversation.isAdmin ? false : true}
                       renderMoreOptions={() => {
                       return (
                         <div className="ch-more-options-container">

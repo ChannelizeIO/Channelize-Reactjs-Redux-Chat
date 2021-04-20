@@ -47,7 +47,8 @@ class MessageLivestream extends Component {
 	}
 
 	render() {
-		const { client, message, isSentByAdmin, renderMoreOptions } = this.props;
+		const { client, message, isSentByAdmin, showMoreOptionsIcon, renderMoreOptions } = this.props;
+
 		const { showMoreOptions } = this.state;
 
 		// Set class for user/owner message
@@ -126,14 +127,18 @@ class MessageLivestream extends Component {
 
 								{fileMessage}
 							</div>
-							<div className="ch-msg-more-icon">
-								<i className="material-icons" onClick={()=>this.toggleMoreOptions()}>more_vert</i>
-							</div>
-							<OutsideClickHandler onOutsideClick={()=>this.hideMoreOptions()}>
-								<div onClick={()=>this.toggleMoreOptions()}>
-									{ showMoreOptions && renderMoreOptions && renderMoreOptions()}
-								</div>
-							</OutsideClickHandler>
+							{showMoreOptionsIcon && 
+								<React.Fragment>
+									<div className="ch-msg-more-icon">
+										<i className="material-icons" onClick={()=>this.toggleMoreOptions()}>more_vert</i>
+									</div>
+									<OutsideClickHandler onOutsideClick={()=>this.hideMoreOptions()}>
+										<div onClick={()=>this.toggleMoreOptions()}>
+											{ showMoreOptions && renderMoreOptions && renderMoreOptions()}
+										</div>
+									</OutsideClickHandler>
+								</React.Fragment>
+							}
 						</div>
 					</div>
 				}
