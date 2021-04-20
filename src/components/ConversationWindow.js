@@ -74,7 +74,6 @@ class ConversationWindow extends PureComponent {
   }
 
   getSnapshotBeforeUpdate(prevProps) {
-    console.log("getSnapshotBeforeUpdate: ");
     if (prevProps.messagelist.length < this.props.messagelist.length) {
       if (!this.chMessageBoxRef || !this.chMessageBoxRef.current) {
         return null;
@@ -285,7 +284,6 @@ class ConversationWindow extends PureComponent {
   }
 
   handleTabChange(type) {
-    console.log(type)
     this.setState({enabledTabName: type});
   }
 

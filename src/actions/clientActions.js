@@ -191,7 +191,6 @@ export const registerEventHandlers = (client) => {
     });
 
     client.chsocket.on('user.conversation_ban_updated', function (response) {
-      console.log("===", response);
       dispatch({
         type: CONVERSATION_BAN_UPDATED_EVENT,
         payload: response

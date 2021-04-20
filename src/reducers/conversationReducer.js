@@ -328,7 +328,6 @@ export const handlers = {
   [MARK_AS_READ_EVENT]: markAsRead,
   [DELETE_MESSAGE_FOR_EVERYONE_EVENT]: deleteMessagesForEveryoneEvent,
   [DELETE_MESSAGE_EVENT]: deleteMessageEvent,
-
   [CONVERSATION_BAN_LIST_SUCCESS]: conversationBanListSuccess,
   [BAN_CONVERSATION_USERS_SUCCESS]: banConversationUserSuccess,
   [UNBAN_CONVERSATION_USERS_SUCCESS]: unbanConversationUserSuccess,

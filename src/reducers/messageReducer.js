@@ -38,7 +38,8 @@ import {
   CONVERSATION_BAN_UPDATED_EVENT,
 } from '../constants';
 import { createReducer, uniqueList } from '../utils';
-// import { Channelize } from 'channelize-chat';
+
+const Channelize = window.Channelize;
 
 const INITIAL_STATE = {
   messagelist: [],
