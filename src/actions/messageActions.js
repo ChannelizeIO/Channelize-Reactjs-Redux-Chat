@@ -26,6 +26,7 @@ import {
   STOP_WATCHING_PROGRESS,
   STOP_WATCHING_FAIL,
   STOP_WATCHING_SUCCESS,
+  DELETE_MESSAGE_FOR_EVERYONE_EVENT,
 } from '../constants';
 
 export const sendFileToConversation = (client, conversation, file, body, attachmentType) => {
@@ -237,6 +238,13 @@ export const registerConversationEventHandlers = (conversation) => {
     conversation.on('watcher.message.created', (response) => {
       dispatch({
         type: NEW_MESSAGE_RECEIVED_EVENT,
+        payload: response
+      });
+    });
+
+    conversation.on('watcher.message.deleted_for_everyone', (response) => {
+      dispatch({
+        type: DELETE_MESSAGE_FOR_EVERYONE_EVENT,
         payload: response
       });
     });
