@@ -36,6 +36,9 @@ import {
   STOP_WATCHING_FAIL,
   STOP_WATCHING_SUCCESS,
   CONVERSATION_BAN_UPDATED_EVENT,
+  CONVERSATION_BAN_LIST_SUCCESS,
+  BAN_CONVERSATION_USERS_SUCCESS,
+  UNBAN_CONVERSATION_USERS_SUCCESS,
 } from '../constants';
 import { createReducer, uniqueList } from '../utils';
 
@@ -58,6 +61,9 @@ const INITIAL_STATE = {
 
   newMessage: null,
   sendingFile: false,
+
+  // Conversation ban user list
+  banList: [],
 };
 
 export const loadingMessageList = (state, action) => {
@@ -346,6 +352,28 @@ export const conversationBanUpdatedEvent = (state, action) => {
   state.conversation = new Channelize.core.Conversation.Model(client, jsonConversaton);
 }
 
+export const conversationBanListSuccess = (state, action) => {
+  state.banList = action.payload;
+}
+
+export const banConversationUserSuccess = (state, action) => {
+  const { conversation, userIds, displayName } = action.payload;
+
+  const banUserList = userIds.map(userId => {
+    return {userId, user: {displayName}};
+  });
+
+  const finalList = [...state.banList, ...banUserList];
+  state.banList = finalList;
+}
+
+export const unbanConversationUserSuccess = (state, action) => {
+  const { conversation, userIds } = action.payload;
+
+  const finalList = state.banList.filter(user => !userIds.includes(user.userId));
+  state.banList = finalList;
+}
+
 export const handlers = {
   [LOADING_MESSAGE_LIST]: loadingMessageList,
   [MESSAGE_LIST_SUCCESS]: messageListSuccess,
@@ -380,6 +408,9 @@ export const handlers = {
   [STOP_WATCHING_FAIL]: stopWatchingFail,
   [STOP_WATCHING_SUCCESS]: stopWatchingSuccess,
   [CONVERSATION_BAN_UPDATED_EVENT]: conversationBanUpdatedEvent,
+  [CONVERSATION_BAN_LIST_SUCCESS]: conversationBanListSuccess,
+  [BAN_CONVERSATION_USERS_SUCCESS]: banConversationUserSuccess,
+  [UNBAN_CONVERSATION_USERS_SUCCESS]: unbanConversationUserSuccess,
 };
 
 export default createReducer(INITIAL_STATE, handlers);

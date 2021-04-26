@@ -7,10 +7,10 @@ import { Avatar } from "./Avatar";
 
 class MessageSimple extends Component {
 	constructor(props) {
-	  	super(props);
-	  	this.state = {
-	  		showMoreOptions: false
-  		}
+  	super(props);
+  	this.state = {
+  		showMoreOptions: false
+		}
 	}
 
 	downloadFile(url, name) {
@@ -24,17 +24,17 @@ class MessageSimple extends Component {
 	}
 
 	toggleMoreOptions = () => {
-	    this.setState((state) => ({
-      		showMoreOptions: !state.showMoreOptions
-	    }));
-  	}
+    this.setState((state) => ({
+    		showMoreOptions: !state.showMoreOptions
+    }));
+	}
 
-  	hideMoreOptions = () => {
+	hideMoreOptions = () => {
 		if (!this.state.showMoreOptions) return;
 		this.setState((state) => ({
 			showMoreOptions: false
 		}));
-  	}
+	}
 
 	render() {
 		const {

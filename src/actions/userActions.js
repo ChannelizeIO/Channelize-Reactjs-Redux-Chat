@@ -25,11 +25,13 @@ export const getFriendsList = (userListQuery) => {
           type: FRIENDS_LIST_FAIL,
           payload: err
         });
+        return;
       }
       dispatch({
         type: FRIENDS_LIST_SUCCESS,
         payload: response
       });
+      return;
     })
   };
 };
@@ -46,11 +48,13 @@ export const loadMoreFriends = (userListQuery) => {
           type: LOAD_MORE_FRIENDS_FAIL,
           payload: err
         });
+        return;
       }
       dispatch({
         type: LOAD_MORE_FRIENDS_SUCCESS,
         payload: response
       });
+      return;
     })
   };
 };
@@ -67,11 +71,13 @@ export const getMoreUsersList = (userListQuery) => {
           type: MORE_USERS_LIST_FAIL,
           payload: err
         });
+        return;
       }
       dispatch({
         type: MORE_USERS_LIST_SUCCESS,
         payload: response
       });
+      return;
     })
   };
 };
@@ -88,11 +94,13 @@ export const searchFriends = (userListQuery) => {
           type: SEARCH_FRIENDS_FAIL,
           payload: err
         });
+        return;
       }
       dispatch({
         type: SEARCH_FRIENDS_SUCCESS,
         payload: response
       });
+      return;
     })
   };
 };

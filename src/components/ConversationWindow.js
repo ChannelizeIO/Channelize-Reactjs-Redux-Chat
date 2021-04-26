@@ -60,7 +60,7 @@ class ConversationWindow extends PureComponent {
       dummyConversation: null,
       userId: null,
       guestJoinFormOpened: false,
-      enabledTabName: 'chat'
+      activeTab: 'chat'
     }
   }
 
@@ -284,7 +284,7 @@ class ConversationWindow extends PureComponent {
   }
 
   handleTabChange(type) {
-    this.setState({enabledTabName: type});
+    this.setState({activeTab: type});
   }
 
   handleKeyPress(event) {
@@ -384,12 +384,18 @@ class ConversationWindow extends PureComponent {
   banConversationUsers(userId, displayName) {
     if (!userId) return;
     const { client, conversation } = this.props;
+    if (!conversation) {
+      return;
+    }
     this.props.banConversationUsers(conversation, [userId], displayName);
   }
 
   unbanConversationUsers(userId) {
     if (!userId) return;
     const { client, conversation } = this.props;
+    if (!conversation) {
+      return;
+    }
     this.props.unbanConversationUsers(conversation, [userId]);
   }
   
@@ -546,7 +552,7 @@ class ConversationWindow extends PureComponent {
       banList,
     } = this.props;
 
-    const { text, dummyConversation, enabledTabName } = this.state;
+    const { text, dummyConversation, activeTab } = this.state;
 
     // Set dummy conversation if conversation doesn't exist
     if (!conversation) {
@@ -569,6 +575,7 @@ class ConversationWindow extends PureComponent {
     let headerImage;
     let headerSubtitle;
     let conversationAdmins = [];
+    let showTabs = false;
 
     const user = client.getCurrentUser();
 
@@ -603,11 +610,12 @@ class ConversationWindow extends PureComponent {
         .filter(member => member.isAdmin === true)
         .map(member => member.userId);
       }
+
+      // Check show tabs in conversation window or not.
+      showTabs = connected && !messageLoading && conversation.isAdmin && conversation.type && ["open", "public"].includes(conversation.type);
     }
 
     const typingStrings = typingString(typing);
-
-    const showTabs = !connecting && !messageLoading && conversation && conversation.isAdmin && conversation.type && ["open", "public"].includes(conversation.type);
 
     return (
       <div id="ch_conv_window" className="ch-conv-window">
@@ -641,13 +649,13 @@ class ConversationWindow extends PureComponent {
 
         { showTabs && 
           <div className="conversation-window-tabs">
-            <button onClick={()=>this.handleTabChange('chat')} className={"chat " + (enabledTabName == 'chat' ? 'active' : '')}>Chat</button>
-            <button onClick={()=>this.handleTabChange('manage')} className={"manage " + (enabledTabName == 'manage' ? 'active' : '')}>Manage</button>
+            <button onClick={()=>this.handleTabChange('chat')} className={"chat " + (activeTab == 'chat' ? 'active' : '')}>Chat</button>
+            <button onClick={()=>this.handleTabChange('manage')} className={"manage " + (activeTab == 'manage' ? 'active' : '')}>Manage</button>
           </div>
         }
         
         <React.Fragment >
-          <div style={{display: (enabledTabName == 'chat') ? 'block' : 'none'}} id="ch_messages_box" ref={this.chMessageBoxRef} className="ch-messages-box" onScroll={this.onScroll}>
+          <div style={{display: (activeTab == 'chat') ? 'block' : 'none'}} id="ch_messages_box" ref={this.chMessageBoxRef} className="ch-messages-box" onScroll={this.onScroll}>
             { <div className="ch-conversation-padding"> </div>}
            
             { (connecting || messageLoading) &&  <div className="center"><Loader /></div>}
@@ -701,7 +709,7 @@ class ConversationWindow extends PureComponent {
           </div>
 
           { conversation &&
-            <div style={{display: (enabledTabName == 'chat') ? 'block' : 'none'}}>
+            <div style={{display: (activeTab == 'chat') ? 'block' : 'none'}}>
               { composerDisabled ?
                 <div className="ch-composer-disabled-box">
                   <div>{disableComposerMessage}</div>
@@ -752,7 +760,7 @@ class ConversationWindow extends PureComponent {
         </React.Fragment>
 
         <React.Fragment>
-          <div className="conversation-window-manage" style={{display: (enabledTabName == 'manage') ? 'block' : 'none'}}>
+          <div className="conversation-window-manage" style={{display: (activeTab == 'manage') ? 'block' : 'none'}}>
             <ul>
               {
                 banList.map(user => {
@@ -794,8 +802,7 @@ ConversationWindow.defaultProps = {
 };
 
 const mapStateToProps = ({message, conversation, client}, ownProps) => {
-  // return {...message, ...client, ownProps: ownProps}
-  return {...message, ...conversation, ...client, ownProps: ownProps}
+  return {...message, ...client, ownProps: ownProps}
 }
 
 ConversationWindow = connect(

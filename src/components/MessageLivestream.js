@@ -15,7 +15,7 @@ class MessageLivestream extends Component {
 
 	toggleMoreOptions = () => {
     this.setState((state) => ({
-    		showMoreOptions: !state.showMoreOptions
+  		showMoreOptions: !state.showMoreOptions
     }));
 	}
 

@@ -15,9 +15,6 @@ import {
   MARK_AS_READ_EVENT,
   DELETE_MESSAGE_FOR_EVERYONE_EVENT,
   DELETE_MESSAGE_EVENT,
-  CONVERSATION_BAN_LIST_SUCCESS,
-  BAN_CONVERSATION_USERS_SUCCESS,
-  UNBAN_CONVERSATION_USERS_SUCCESS,
 } from '../constants';
 import { createReducer, uniqueList } from '../utils';
 
@@ -27,7 +24,7 @@ const INITIAL_STATE = {
   loadingMoreConversations: false,
   allConversationsLoaded: false,
   conversationError: null,
-  banList: [],
+
 };
 
 export const loadingConversationList = (state, action) => {
@@ -283,34 +280,6 @@ export const markAsRead = (state, action) => {
   state.conversationlist = finalList;
 }
 
-export const conversationBanListSuccess = (state, action) => {
-  state.banList = action.payload;
-}
-
-export const banConversationUserSuccess = (state, action) => {
-  const { conversation, userIds, displayName } = action.payload;
-
-  const banUserList = userIds.map(userId => {
-    return {userId, user: {displayName}};
-  });
-
-  const finalList = [...state.banList, ...banUserList];
-  state.banList = finalList;
-}
-
-export const unbanConversationUserSuccess = (state, action) => {
-  const { conversation, userIds } = action.payload;
-
-  const finalList = [];
-  state.banList.forEach((user) => {
-    if (!userIds.includes(user.userId)) {
-      finalList.push(user);
-    }
-  });
-  
-  state.banList = finalList;
-}
-
 export const handlers = {
   [LOADING_CONVERSATION_LIST]: loadingConversationList,
   [CONVERSATION_LIST_FAIL]: listConversationFail,
@@ -328,9 +297,7 @@ export const handlers = {
   [MARK_AS_READ_EVENT]: markAsRead,
   [DELETE_MESSAGE_FOR_EVERYONE_EVENT]: deleteMessagesForEveryoneEvent,
   [DELETE_MESSAGE_EVENT]: deleteMessageEvent,
-  [CONVERSATION_BAN_LIST_SUCCESS]: conversationBanListSuccess,
-  [BAN_CONVERSATION_USERS_SUCCESS]: banConversationUserSuccess,
-  [UNBAN_CONVERSATION_USERS_SUCCESS]: unbanConversationUserSuccess,
+
 };
 
 export default createReducer(INITIAL_STATE, handlers);
