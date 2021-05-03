@@ -55,6 +55,13 @@ class MessageLivestream extends Component {
 		let msgContainerPos = "left";  
 
 		let adminMsg = message.type === "admin" ? true : false;
+		let adminMessageType = null;
+		if (adminMsg) {
+			const attachment = message.attachments.length ? message.attachments[0] : null;
+			if (attachment) {
+				adminMessageType = attachment.adminMessageType;
+			}
+		}
 
 		let fileMessage;
 		if (message.attachments && message.attachments.length) {
@@ -108,12 +115,12 @@ class MessageLivestream extends Component {
 				}
 
 				{ adminMsg ?
-					<div className="ch-admin-msg-container">
+					<div className={`ch-admin-msg-container ${message.type} ${adminMessageType}`}>
 						<span className="ch-admin-msg">{message.text}</span>
 					</div>
 					:
 					<div key={message.id} className={`ch-msg-padding ${msgContainerPos}`}>
-						<div className={`ch-msg-container ch-msg-container-livestream`}>
+						<div className={`ch-msg-container ch-msg-container-livestream ${message.type}`}>
 							<Avatar src={message.owner.profileImageUrl} initials={message.owner.displayName} className="ch-message-owner-avatar"></Avatar>
 							<div className={`ch-msg-content ch-msg-content__livestream`}>
 								{ message.body && 
