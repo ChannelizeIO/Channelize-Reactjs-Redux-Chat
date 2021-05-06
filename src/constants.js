@@ -48,6 +48,7 @@ export const LANGUAGE_PHRASES = {
 	BAN_USER: 'Ban User',
 	UNBAN_USER: 'Unban User',
 	BAN_USER_MESSAGE: 'You are currently banned to send messages for this show.',
+	NOT_ALLOWED_TO_CHAT: 'You must sign-in to chat',
 }
 
 export const ADMIN_MSG_FORMATS = {

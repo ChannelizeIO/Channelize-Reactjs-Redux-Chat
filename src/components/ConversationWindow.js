@@ -604,6 +604,11 @@ class ConversationWindow extends PureComponent {
         disableComposerMessage = LANGUAGE_PHRASES.BAN_USER_MESSAGE
       }
 
+      if(!allowGuestUsers && !conversation.canChat()) {
+        composerDisabled = true;
+        disableComposerMessage = LANGUAGE_PHRASES.NOT_ALLOWED_TO_CHAT
+      }
+
       // Store conversation admins for easy comparision later
       if (conversation.members && conversation.members.length) {
         conversationAdmins = conversation.members
