@@ -62,8 +62,8 @@ export const ADMIN_MSG_FORMATS = {
 	admin_group_change_photo: "%s changed group photo",
 	admin_call_video_missed: "%s missed a video call from %s",
 	admin_call_voice_missed: "%s missed a voice call from %s",
-	admin_custom_auction_winner: "Winner: %s",
-	admin_custom_auction_backup: "Backup: %s",
+	admin_custom_auction_winner: "🎉 Winner: %s",
+	admin_custom_auction_backup: "⏳ Backup: %s",
 }
 
 export const CALL_FORMATS = {
