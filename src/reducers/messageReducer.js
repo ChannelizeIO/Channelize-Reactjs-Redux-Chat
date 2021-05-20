@@ -35,14 +35,19 @@ import {
   STOP_WATCHING_PROGRESS,
   STOP_WATCHING_FAIL,
   STOP_WATCHING_SUCCESS,
+  CONVERSATION_BAN_UPDATED_EVENT,
+  CONVERSATION_BAN_LIST_SUCCESS,
+  BAN_CONVERSATION_USERS_SUCCESS,
+  UNBAN_CONVERSATION_USERS_SUCCESS,
 } from '../constants';
 import { createReducer, uniqueList } from '../utils';
-// import { Channelize } from 'channelize-chat';
+
+const Channelize = window.Channelize;
 
 const INITIAL_STATE = {
-  list: [],
-  loading: false,
-  error: null,
+  messagelist: [],
+  messageLoading: false,
+  messageError: null,
   loadingMoreMessages: false,
   allMessagesLoaded: false,
   sendingMessage: false,
@@ -56,22 +61,25 @@ const INITIAL_STATE = {
 
   newMessage: null,
   sendingFile: false,
+
+  // Conversation ban user list
+  banList: [],
 };
 
 export const loadingMessageList = (state, action) => {
-  state.loading = true;
-  state.list = [];
+  state.messageLoading = true;
+  state.messagelist = [];
   state.allMessagesLoaded = false;
 };
 
 export const messageListSuccess = (state, action) => {
-  state.loading = false;
-  state.list = action.payload;
+  state.messageLoading = false;
+  state.messagelist = action.payload;
 };
 
 export const messageListFail = (state, action) => {
-  state.loading = false;
-  state.error = action.payload;
+  state.messageLoading = false;
+  state.messageError = action.payload;
 };
 
 export const loadingLoadMoreMessages = (state, action) => {
@@ -80,7 +88,7 @@ export const loadingLoadMoreMessages = (state, action) => {
 
 export const loadMoreMessagesFail = (state, action) => {
   state.loadingMoreMessages = false;
-  state.error = action.payload;
+  state.messageError = action.payload;
 };
 
 export const loadMoreMessagesSuccess = (state, action) => {
@@ -88,46 +96,46 @@ export const loadMoreMessagesSuccess = (state, action) => {
   if (!action.payload.length) {
     state.allMessagesLoaded = true;
   } else {
-    state.list = [...action.payload, ...state.list];
-    state.list = uniqueList(state.list);
+    state.messagelist = [...action.payload, ...state.messagelist];
+    state.messagelist = uniqueList(state.messagelist);
   }
 };
 
 export const sendingMessage = (state, action) => {
   state.sendingMessage = true;
   action.payload.status = "pending";
-  state.list = [...state.list, ...[action.payload]];
-  state.list = uniqueList(state.list);
+  state.messagelist = [...state.messagelist, ...[action.payload]];
+  state.messagelist = uniqueList(state.messagelist);
 };
 
 export const sendMessageSuccess = (state, action) => {
   state.sendingMessage = false;
-  state.list = [...state.list, ...[action.payload]];
-  state.list = uniqueList(state.list);
+  state.messagelist = [...state.messagelist, ...[action.payload]];
+  state.messagelist = uniqueList(state.messagelist);
 };
 
 export const sendMessageFail = (state, action) => {
   action.payload.status = "failed";
-  // state.list = [...state.list, ...[action.payload]];
-  // state.list = uniqueList(state.list);
+  // state.messagelist = [...state.messagelist, ...[action.payload]];
+  // state.messagelist = uniqueList(state.messagelist);
 };
 
 export const sendingFile = (state, action) => {
   state.sendingFile = true;
-  state.list = [...state.list, ...[action.payload]];
-  state.list = uniqueList(state.list);
+  state.messagelist = [...state.messagelist, ...[action.payload]];
+  state.messagelist = uniqueList(state.messagelist);
 };
 
 export const sendFileSuccess = (state, action) => {
   state.sendingFile = false;
-  state.list = [...state.list, ...[action.payload]];
-  state.list = uniqueList(state.list);
+  state.messagelist = [...state.messagelist, ...[action.payload]];
+  state.messagelist = uniqueList(state.messagelist);
 };
 
 export const sendFileFail = (state, action) => {
   state.sendingFile = false;
-  // state.list = [...[action.payload], ...state.list];
-  // state.list = uniqueList(state.list);
+  // state.messagelist = [...[action.payload], ...state.messagelist];
+  // state.messagelist = uniqueList(state.messagelist);
 };
 
 export const setActiveConversation = (state, action) => {
@@ -143,8 +151,8 @@ export const setActiveUserId = (state, action) => {
 export const newMessageReceived = (state, action) => {
   let message = action.payload.message;
   if (state.conversation && state.conversation.id == message.conversationId) {
-    state.list = [...state.list, ...[message]];
-    state.list = uniqueList(state.list);
+    state.messagelist = [...state.messagelist, ...[message]];
+    state.messagelist = uniqueList(state.messagelist);
 
     state.newMessage = message;
   }
@@ -155,7 +163,7 @@ export const deleteMessagesForEveryoneEvent = (state, action) => {
   let messages = action.payload.messages;
   if (state.conversation && state.conversation.id == conversation.id) {
     let deletedMessageIds = messages.map(msg => msg.id);
-    const finalList = state.list.map(msg => {
+    const finalList = state.messagelist.map(msg => {
       if (deletedMessageIds.includes(msg.id)) {
         msg.isDeleted = true;
         msg.body = "";
@@ -165,7 +173,7 @@ export const deleteMessagesForEveryoneEvent = (state, action) => {
         return msg;
       }
     });
-    state.list = finalList;
+    state.messagelist = finalList;
   }
 };
 
@@ -174,13 +182,13 @@ export const deleteMessageEvent = (state, action) => {
   let messages = action.payload.messages;
   if (state.conversation && state.conversation.id == conversation.id) {
     let deletedMessageIds = messages.map(msg => msg.id);
-    state.list = [...state.list.filter(msg => !deletedMessageIds.includes(msg.id))];
+    state.messagelist = [...state.messagelist.filter(msg => !deletedMessageIds.includes(msg.id))];
   }
 };
 
 export const deleteMessagesForEveryoneSuccess = (state, action) => {
   const deletedMessageIds = action.payload;
-  const finalList = state.list.map(msg => {
+  const finalList = state.messagelist.map(msg => {
     if (deletedMessageIds.includes(msg.id)) {
       msg.isDeleted = true;
       msg.body = "";
@@ -190,12 +198,12 @@ export const deleteMessagesForEveryoneSuccess = (state, action) => {
       return msg;
     }
   });
-  state.list = finalList;
+  state.messagelist = finalList;
 };
 
 export const deleteMessageForMeSuccess = (state, action) => {
   const deletedMessageIds = action.payload;
-  state.list = [...state.list.filter(msg => !deletedMessageIds.includes(msg.id))];
+  state.messagelist = [...state.messagelist.filter(msg => !deletedMessageIds.includes(msg.id))];
 };
 
 export const conversationUpdated = (state, action) => {
@@ -309,29 +317,61 @@ export const typingEvent = (state, action) => {
 };
 
 export const startWatchingProgress = (state, action) => {
-  state.loading = true;
+  state.messageLoading = true;
 }
 
 export const startWatchingFail = (state, action) => {
-  state.loading = false;
-  state.error = action.payload;
+  state.messageLoading = false;
+  state.messageError = action.payload;
 }
 
 export const startWatchingSuccess = (state, action) => {
-  state.loading = false;
+  state.messageLoading = false;
 }
 
 export const stopWatchingProgress = (state, action) => {
-  state.loading = true;
+  state.messageLoading = true;
 }
 
 export const stopWatchingFail = (state, action) => {
-  state.loading = false;
-  state.error = action.payload;
+  state.messageLoading = false;
+  state.messageError = action.payload;
 }
 
 export const stopWatchingSuccess = (state, action) => {
-  state.loading = false;
+  state.messageLoading = false;
+}
+
+export const conversationBanUpdatedEvent = (state, action) => {
+  const { ban } = action.payload;
+  const client = Channelize.core.Client.getInstance();
+
+  const jsonConversaton = state.conversation.toJSON();;
+  jsonConversaton.ban = ban
+  
+  state.conversation = new Channelize.core.Conversation.Model(client, jsonConversaton);
+}
+
+export const conversationBanListSuccess = (state, action) => {
+  state.banList = action.payload;
+}
+
+export const banConversationUserSuccess = (state, action) => {
+  const { conversation, userIds, displayName } = action.payload;
+
+  const banUserList = userIds.map(userId => {
+    return {userId, user: {displayName}};
+  });
+
+  const finalList = [...state.banList, ...banUserList];
+  state.banList = finalList;
+}
+
+export const unbanConversationUserSuccess = (state, action) => {
+  const { conversation, userIds } = action.payload;
+
+  const finalList = state.banList.filter(user => !userIds.includes(user.userId));
+  state.banList = finalList;
 }
 
 export const handlers = {
@@ -367,6 +407,10 @@ export const handlers = {
   [STOP_WATCHING_PROGRESS]: stopWatchingProgress,
   [STOP_WATCHING_FAIL]: stopWatchingFail,
   [STOP_WATCHING_SUCCESS]: stopWatchingSuccess,
+  [CONVERSATION_BAN_UPDATED_EVENT]: conversationBanUpdatedEvent,
+  [CONVERSATION_BAN_LIST_SUCCESS]: conversationBanListSuccess,
+  [BAN_CONVERSATION_USERS_SUCCESS]: banConversationUserSuccess,
+  [UNBAN_CONVERSATION_USERS_SUCCESS]: unbanConversationUserSuccess,
 };
 
 export default createReducer(INITIAL_STATE, handlers);

@@ -45,6 +45,10 @@ export const LANGUAGE_PHRASES = {
 	GUEST_JOIN_HEADING: 'Enter your name to join the Chat',
 	GUEST_JOIN_ERROR_DISPLAY_NAME: 'Please enter a valid name',
 	GUEST_JOIN_LABEL_DISPLAY_NAME: 'Enter your name here',
+	BAN_USER: 'Ban User',
+	UNBAN_USER: 'Unban User',
+	BAN_USER_MESSAGE: 'You are currently not allowed to send messages to this Show.',
+	NOT_ALLOWED_TO_CHAT: 'You must sign-in to chat',
 }
 
 export const ADMIN_MSG_FORMATS = {
@@ -58,8 +62,8 @@ export const ADMIN_MSG_FORMATS = {
 	admin_group_change_photo: "%s changed group photo",
 	admin_call_video_missed: "%s missed a video call from %s",
 	admin_call_voice_missed: "%s missed a voice call from %s",
-	admin_custom_auction_winner: "Winner: %s",
-	admin_custom_auction_backup: "Backup: %s",
+	admin_custom_auction_winner: "🎉 Winner: %s",
+	admin_custom_auction_backup: "⏳ Backup: %s",
 }
 
 export const CALL_FORMATS = {
@@ -156,3 +160,13 @@ export const START_WATCHING_SUCCESS = 'START_WATCHING_SUCCESS'
 export const STOP_WATCHING_PROGRESS = 'STOP_WATCHING_PROGRESS'
 export const STOP_WATCHING_FAIL = 'STOP_WATCHING_FAIL'
 export const STOP_WATCHING_SUCCESS = 'STOP_WATCHING_SUCCESS'
+export const BAN_CONVERSATION_USERS = 'BAN_CONVERSATION_USERS'
+export const BAN_CONVERSATION_USERS_FAIL = 'BAN_CONVERSATION_USERS_FAIL'
+export const BAN_CONVERSATION_USERS_SUCCESS = 'BAN_CONVERSATION_USERS_SUCCESS'
+export const UNBAN_CONVERSATION_USERS = 'UNBAN_CONVERSATION_USERS'
+export const UNBAN_CONVERSATION_USERS_FAIL = 'UNBAN_CONVERSATION_USERS_FAIL'
+export const UNBAN_CONVERSATION_USERS_SUCCESS = 'UNBAN_CONVERSATION_USERS_SUCCESS'
+export const LOADING_CONVERSATION_BAN_LIST = 'LOADING_CONVERSATION_BAN_LIST'
+export const CONVERSATION_BAN_LIST_FAIL = 'CONVERSATION_BAN_LIST_FAIL'
+export const CONVERSATION_BAN_LIST_SUCCESS = 'CONVERSATION_BAN_LIST_SUCCESS'
+export const CONVERSATION_BAN_UPDATED_EVENT = 'CONVERSATION_BAN_UPDATED_EVENT'

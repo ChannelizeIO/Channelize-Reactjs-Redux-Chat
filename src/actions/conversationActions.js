@@ -19,11 +19,13 @@ export const getConversationList = (conversationListQuery) => {
           type: CONVERSATION_LIST_FAIL,
           payload: err
         });
+        return;
       }
       dispatch({
         type: CONVERSATION_LIST_SUCCESS,
         payload: response
       }); 
+      return;
     })
   };
 };
@@ -40,11 +42,13 @@ export const loadMoreConversations = (conversationListQuery) => {
           type: LOAD_MORE_CONVERSATIONS_FAIL,
           payload: err
         });
+        return;
       }
       dispatch({
         type: LOAD_MORE_CONVERSATIONS_SUCCESS,
         payload: response
       });
+      return;
     })
   };
 };

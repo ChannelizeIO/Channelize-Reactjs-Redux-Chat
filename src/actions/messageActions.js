@@ -26,6 +26,16 @@ import {
   STOP_WATCHING_PROGRESS,
   STOP_WATCHING_FAIL,
   STOP_WATCHING_SUCCESS,
+  DELETE_MESSAGE_FOR_EVERYONE_EVENT,
+  BAN_CONVERSATION_USERS,
+  BAN_CONVERSATION_USERS_FAIL,
+  BAN_CONVERSATION_USERS_SUCCESS,
+  UNBAN_CONVERSATION_USERS,
+  UNBAN_CONVERSATION_USERS_FAIL,
+  UNBAN_CONVERSATION_USERS_SUCCESS,
+  LOADING_CONVERSATION_BAN_LIST,
+  CONVERSATION_BAN_LIST_FAIL,
+  CONVERSATION_BAN_LIST_SUCCESS,
 } from '../constants';
 
 export const sendFileToConversation = (client, conversation, file, body, attachmentType) => {
@@ -96,7 +106,8 @@ export const sendMessageToConversation = (conversation, body) => {
         type: SEND_MESSAGE_SUCCESS,
         payload: response
       });
-    })
+      return;
+    });
   };
 };
 
@@ -112,12 +123,14 @@ export const sendMessageToUserId = (client, body) => {
           type: SEND_MESSAGE_FAIL,
           payload: err
         });
+        return;
       }
       dispatch({
         type: SEND_MESSAGE_SUCCESS,
         payload: response
       });
-    })
+      return;
+    });
   };
 };
 
@@ -139,6 +152,7 @@ export const getMessageList = (messageListQuery) => {
         type: MESSAGE_LIST_SUCCESS,
         payload: response.reverse()
       });
+      return;
     })
   };
 };
@@ -161,6 +175,7 @@ export const loadMoreMessages = (messageListQuery) => {
         type: LOAD_MORE_MESSAGES_SUCCESS,
         payload: response.reverse()
       });
+      return;
     })
   };
 };
@@ -184,6 +199,7 @@ export const deleteMessagesForEveryone = (client, messageIds) => {
         type: DELETE_MESSAGES_FOR_EVERYONE_SUCCESS,
         payload: messageIds
       });
+      return;
     })
   };
 };
@@ -206,6 +222,7 @@ export const deleteMessagesForMe = (client, messageIds) => {
         type: DELETE_MESSAGES_FOR_ME_SUCCESS,
         payload: messageIds
       });
+      return;
     })
   };
 };
@@ -216,6 +233,7 @@ export const setActiveConversation = (conversation) => {
       type: SET_ACTIVE_CONVERSATION,
       payload: conversation
     });
+    return;
   };
 };
 
@@ -225,6 +243,7 @@ export const setActiveUserId = (userId) => {
       type: SET_ACTIVE_USERID,
       payload: userId
     });
+    return;
   };
 };
 
@@ -239,6 +258,15 @@ export const registerConversationEventHandlers = (conversation) => {
         type: NEW_MESSAGE_RECEIVED_EVENT,
         payload: response
       });
+      return;
+    });
+
+    conversation.on('watcher.message.deleted_for_everyone', (response) => {
+      dispatch({
+        type: DELETE_MESSAGE_FOR_EVERYONE_EVENT,
+        payload: response
+      });
+      return;
     });
   }
 }
@@ -264,7 +292,8 @@ export const startWatchingAndSetActiveConversation = (conversation) => {
       dispatch({
         type: SET_ACTIVE_CONVERSATION,
         payload: conversation
-      });  
+      });
+      return;
     })
   };
 };
@@ -290,7 +319,79 @@ export const stopWatchingAndSetNullConversation = (conversation) => {
       dispatch({
         type: SET_ACTIVE_CONVERSATION,
         payload: null
-      });  
+      });
+      return;
     })
+  };
+};
+
+export const getConversationBanList = (conversationBanListQuery) => {
+  return dispatch => {
+    dispatch({
+      type: LOADING_CONVERSATION_BAN_LIST,
+      payload: {}
+    });
+    return conversationBanListQuery.list((err, response) => {
+      if (err) {
+        dispatch({
+          type: CONVERSATION_BAN_LIST_FAIL,
+          payload: err
+        });
+        return;
+      }
+      dispatch({
+        type: CONVERSATION_BAN_LIST_SUCCESS,
+        payload: response
+      });
+      return;
+    })
+  };
+};
+
+export const banConversationUsers = (conversation, userIds, displayName) => {
+  return dispatch => {
+    dispatch({
+      type: BAN_CONVERSATION_USERS,
+      payload: {}
+    });
+
+    return conversation.banUsers(userIds, null, null, (err, response) => {
+      if (err) {
+        dispatch({
+          type: BAN_CONVERSATION_USERS_FAIL,
+          payload: err
+        });
+        return;
+      }
+      dispatch({
+        type: BAN_CONVERSATION_USERS_SUCCESS,
+        payload: { conversation, userIds, displayName}
+      });
+      return;
+    });
+  };
+};
+
+export const unbanConversationUsers = (conversation, userIds) => {
+  return dispatch => {
+    dispatch({
+      type: UNBAN_CONVERSATION_USERS,
+      payload: {}
+    });
+
+    return conversation.unbanUsers(userIds, (err, response) => {
+      if (err) {
+        dispatch({
+          type: UNBAN_CONVERSATION_USERS_FAIL,
+          payload: err
+        });
+        return;
+      }
+      dispatch({
+        type: UNBAN_CONVERSATION_USERS_SUCCESS,
+        payload: { conversation, userIds}
+      });
+      return;
+    });
   };
 };

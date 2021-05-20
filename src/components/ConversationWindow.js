@@ -4,6 +4,7 @@ import { Loader } from "./Loader";
 import { MediaLightBox } from "./MediaLightBox";
 import { GuestJoinForm } from "./GuestJoinForm";
 import { MessageSimple } from "./MessageSimple";
+import { SimpleList } from "./SimpleList";
 import { modifyConversation, modifyMessageList, typingString } from "../utils";
 import { connect } from 'react-redux';
 import { LANGUAGE_PHRASES, IMAGES } from "../constants";
@@ -19,8 +20,11 @@ import {
   registerConversationEventHandlers,
   deleteMessagesForEveryone,
   deleteMessagesForMe,
+  banConversationUsers,
+  unbanConversationUsers,
   startWatchingAndSetActiveConversation,
   stopWatchingAndSetNullConversation,
+  getConversationBanList,
 } from '../actions';
 import moment from 'moment';
 import { v4 as uuid } from 'uuid';
@@ -30,13 +34,14 @@ import PropTypes from 'prop-types';
 
 class ConversationWindow extends PureComponent {
 
-	constructor(props) {
+  constructor(props) {
     super(props);
     this.limit = 25;
     this.skip = 0;
     this.showMediaLightBox = false;
 
     this.handleChange = this.handleChange.bind(this);
+    this.handleTabChange = this.handleTabChange.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
     this.onScroll = this.onScroll.bind(this);
@@ -55,6 +60,7 @@ class ConversationWindow extends PureComponent {
       dummyConversation: null,
       userId: null,
       guestJoinFormOpened: false,
+      activeTab: 'chat'
     }
   }
 
@@ -68,12 +74,13 @@ class ConversationWindow extends PureComponent {
   }
 
   getSnapshotBeforeUpdate(prevProps) {
-    if (prevProps.list.length < this.props.list.length) {
-      if (!this.chMessageBoxRef) {
+    if (prevProps.messagelist.length < this.props.messagelist.length) {
+      if (!this.chMessageBoxRef || !this.chMessageBoxRef.current) {
         return null;
       }
-
+      
       const chMessageBoxRef = this.chMessageBoxRef.current;
+
       return {
         scrollHeight: chMessageBoxRef.scrollHeight,
         offsetTop: chMessageBoxRef.scrollTop,
@@ -136,7 +143,7 @@ class ConversationWindow extends PureComponent {
     }
 
     // Scroll to bottom on initial message loading
-    if (prevProps.loading && !this.props.loading) {
+    if (prevProps.messageLoading && !this.props.messageLoading) {
       this._scrollToTarget()
     }
 
@@ -151,7 +158,7 @@ class ConversationWindow extends PureComponent {
     }
 
     // Scroll to target after load more mesages
-    if(prevProps.list.length < this.props.list.length) {
+    if(prevProps.messagelist.length < this.props.messagelist.length) {
       if (snapshot) {
         const chMessageBoxRef = this.chMessageBoxRef.current;
         const target = chMessageBoxRef.scrollHeight - snapshot.offsetBottom;
@@ -194,6 +201,7 @@ class ConversationWindow extends PureComponent {
 
   _init = () => {
     const { client, conversation, userId, ownProps } = this.props;
+    this.handleTabChange('chat');
 
     if (!conversation && !userId) {
       // Handle ownProps
@@ -258,6 +266,13 @@ class ConversationWindow extends PureComponent {
     messageListQuery.skip = this.skip;
     this.props.getMessageList(messageListQuery);
 
+    // Load Banned User Listing
+    if (conversation.isGroup && conversation.isAdmin) {
+      let banListQuery = conversation.createBanListQuery();
+      banListQuery.limit = 100;
+      this.props.getConversationBanList(banListQuery);
+    }
+
     // Mark as read conversation
     if (conversation.unreadMessageCount > 0) {
       conversation.markAsRead();
@@ -266,6 +281,10 @@ class ConversationWindow extends PureComponent {
 
   handleChange(event) {
     this.setState({text: event.target.value});
+  }
+
+  handleTabChange(type) {
+    this.setState({activeTab: type});
   }
 
   handleKeyPress(event) {
@@ -361,6 +380,24 @@ class ConversationWindow extends PureComponent {
     const { client } = this.props;
     this.props.deleteMessagesForMe(client, [msgId]);
   }
+
+  banConversationUsers(userId, displayName) {
+    if (!userId) return;
+    const { client, conversation } = this.props;
+    if (!conversation) {
+      return;
+    }
+    this.props.banConversationUsers(conversation, [userId], displayName);
+  }
+
+  unbanConversationUsers(userId) {
+    if (!userId) return;
+    const { client, conversation } = this.props;
+    if (!conversation) {
+      return;
+    }
+    this.props.unbanConversationUsers(conversation, [userId]);
+  }
   
   sendMessage() {
     const { conversation, client, userId, allowGuestUsers } = this.props;
@@ -452,19 +489,19 @@ class ConversationWindow extends PureComponent {
   }
 
   onScroll() {
-    const { list, conversation, loadingMoreMessages, allMessagesLoaded } = this.props;
+    const { messagelist, conversation, loadingMoreMessages, allMessagesLoaded } = this.props;
     if (!conversation) {
       return null
     }
 
     const chMessageBoxRef = this.chMessageBoxRef.current;
-    if (loadingMoreMessages || allMessagesLoaded || list.length < this.limit) {
+    if (loadingMoreMessages || allMessagesLoaded || messagelist.length < this.limit) {
       return
     }
 
     if(chMessageBoxRef.scrollTop < chMessageBoxRef.clientHeight) {
       // Set skip
-      this.skip = list.length;
+      this.skip = messagelist.length;
 
       let messageListQuery = conversation.createMessageListQuery();
       messageListQuery.limit = this.limit;
@@ -496,10 +533,10 @@ class ConversationWindow extends PureComponent {
       client,
       connecting,
       connected,
-      error,
-      loading,
+      messageError,
+      messageLoading,
       loadingMoreMessages,
-      list,
+      messagelist,
       conversation,
       showCloseIcon,
       showChevron,
@@ -512,17 +549,19 @@ class ConversationWindow extends PureComponent {
       typing,
       noConversationFoundMessage,
       allowGuestUsers,
+      banList,
     } = this.props;
-    const { text, dummyConversation } = this.state;
+
+    const { text, dummyConversation, activeTab } = this.state;
 
     // Set dummy conversation if conversation doesn't exist
     if (!conversation) {
       conversation = dummyConversation
-      list = [];
+      messagelist = [];
     }
 
     // Modify message list
-    list = modifyMessageList(client, conversation, list);
+    messagelist = modifyMessageList(client, conversation, messagelist);
 
     // Disable composer setting
     let composerDisabled = false;
@@ -535,6 +574,8 @@ class ConversationWindow extends PureComponent {
     let headerTitle;
     let headerImage;
     let headerSubtitle;
+    let conversationAdmins = [];
+    let showTabs = false;
 
     const user = client.getCurrentUser();
 
@@ -557,20 +598,32 @@ class ConversationWindow extends PureComponent {
       } else {
         headerActionButton = <div id="ch_conv_block" onClick={() => this.blockUser()}>Block User</div>
       }
+
+      if(conversation.ban && Object.keys(conversation.ban).length) {
+        composerDisabled = true;
+        disableComposerMessage = LANGUAGE_PHRASES.BAN_USER_MESSAGE
+      }
+
+      if(!allowGuestUsers && !conversation.canChat()) {
+        composerDisabled = true;
+        disableComposerMessage = LANGUAGE_PHRASES.NOT_ALLOWED_TO_CHAT
+      }
+
+      // Store conversation admins for easy comparision later
+      if (conversation.members && conversation.members.length) {
+        conversationAdmins = conversation.members
+        .filter(member => member.isAdmin === true)
+        .map(member => member.userId);
+      }
+
+      // Check show tabs in conversation window or not.
+      showTabs = connected && !messageLoading && conversation.isAdmin && conversation.type && ["open", "public"].includes(conversation.type);
     }
 
     const typingStrings = typingString(typing);
-    
-    // Store conversation admins for easy comparision later
-    let conversationAdmins = [];
-    if (conversation && conversation.members.length) {
-      conversationAdmins = conversation.members
-      .filter(member => member.isAdmin === true)
-      .map(member => member.userId);
-    }
 
-		return (
-  		<div id="ch_conv_window" className="ch-conv-window">
+    return (
+      <div id="ch_conv_window" className="ch-conv-window">
         { conversation && showHeader && renderHeader && renderHeader(conversation) }
         { conversation && showHeader && !renderHeader && <Header
           imageSrc={headerImage}
@@ -598,94 +651,145 @@ class ConversationWindow extends PureComponent {
             )
           }}/>
         }
-        <div id="ch_messages_box" ref={this.chMessageBoxRef} className="ch-messages-box" onScroll={this.onScroll}>
-          { <div className="ch-conversation-padding"> </div>}
-         
-          { (connecting || loading) &&  <div className="center"><Loader /></div>}
 
-          { error && <div className="center error">{error}</div>}
-
-          <div className="ch-msg-list">
-            { connected && !conversation && !loading && noConversationFoundMessage && <div className="center no-record-found">{noConversationFoundMessage}</div>}
-
-            { loadingMoreMessages && <Loader />}
-
-            { conversation && !list.length && !loading && <div className="center no-record-found">Be the first one to post a message!</div>}
-
-    				{
-    					list.map(message => {
-                return <Message 
-                    key={message.id} 
-                    message={message} 
-                    isSentByAdmin={ conversationAdmins.includes(message.ownerId) }
-                    onClickEvent={()=>this.viewMediaToggle(message)} 
-                    renderMoreOptions={() => {
-                    return (
-                      <div className="ch-more-options-container">
-                        { message.ownerId == user.id && !message.isDeleted && <p onClick={()=>this.deleteMessagesForEveryone(message.id)}>Delete for everyone</p>}
-                        <p onClick={()=>this.deleteMessagesForMe(message.id)}>Delete for me</p>
-                      </div>
-                    )
-                    }}
-                  />
-              })
-    				}
-
-            <div className="ch-typing-strings">{typingStrings}</div>
+        { showTabs && 
+          <div className="conversation-window-tabs">
+            <button onClick={()=>this.handleTabChange('chat')} className={"chat " + (activeTab == 'chat' ? 'active' : '')}>Chat</button>
+            <button onClick={()=>this.handleTabChange('manage')} className={"manage " + (activeTab == 'manage' ? 'active' : '')}>Manage</button>
           </div>
-        </div>
-
-        { conversation &&
-          <React.Fragment>
-            { composerDisabled ?
-              <div className="ch-composer-disabled-box">
-                <div>{disableComposerMessage}</div>
-              </div>
-              :
-        			<div id="ch_send_box" className="ch-send-box">
-
-              { showComposerActions &&
-                <>
-                  <div className="ch-media-icon-box">
-                    <i title={LANGUAGE_PHRASES.SHARE_GALLERY} className="material-icons ch-attachment-icon">insert_photo</i>
-                    <input id="ch_gallary_input" title={LANGUAGE_PHRASES.SHARE_GALLERY} className="ch-gallary-input" type="file" accept="image/*, video/*" onChange={this.sendMedia} />
-                  </div>
-
-                  <div className="ch-media-icon-box">
-                    <i title={LANGUAGE_PHRASES.SHARE_DOCUMENT} className="material-icons ch-attachment-icon">description</i>
-                    <input id="ch_document_input" title={LANGUAGE_PHRASES.SHARE_DOCUMENT} className="ch-document-input" type="file" accept="application/*,.doc,.docx,.xls,.ppt" onChange={this.sendMedia} />
-                  </div>
-                </>
-              }
-        				<textarea 
-                  id="ch_input_box"
-                  className="ch-input-box"
-                  type="text"
-                  placeholder={LANGUAGE_PHRASES.SEND_MESSAGE}
-                  value={text}
-                  onKeyPress={(e) => { this.handleKeyPress(e) }}
-                  onChange={(e) => { this.handleChange(e) }} 
-                  ></textarea>
-
-                  <button
-                    id="ch_send_button"
-                    className="ch-send-button"
-                    title={LANGUAGE_PHRASES.SEND}
-                    onClick={this.sendMessage}
-                  >
-                    <i className="ch-send-icon material-icons">send</i>
-                  </button>
-
-        			</div>
-            }
-          </React.Fragment>
         }
+        
+        <React.Fragment >
+          <div style={{display: (activeTab == 'chat') ? 'block' : 'none'}} id="ch_messages_box" ref={this.chMessageBoxRef} className="ch-messages-box" onScroll={this.onScroll}>
+            { <div className="ch-conversation-padding"> </div>}
+           
+            { (connecting || messageLoading) &&  <div className="center"><Loader /></div>}
 
-        { this.state.openMediaFile && <MediaLightBox file={this.state.openMediaFile} onCloseClick={()=> this.viewMediaToggle(null)} /> }
+            { messageError && <div className="center error">{messageError}</div>}
 
-        { this.state.guestJoinFormOpened && <GuestJoinForm onCloseClick={this.toggleGuestJoinForm} onJoinedAsGuest={this.onJoinedAsGuest} /> }
-  		</div>
-		);
+            <div className="ch-msg-list">
+              { connected && !conversation && !messageLoading && noConversationFoundMessage && <div className="center no-record-found">{noConversationFoundMessage}</div>}
+
+              { loadingMoreMessages && <Loader />}
+
+              { conversation && !messagelist.length && !messageLoading && <div className="center no-record-found">Be the first one to post a message!</div>}
+
+
+              {
+                messagelist.map(message => {
+                  return <Message 
+                      key={message.id} 
+                      message={message} 
+                      isSentByAdmin={ conversationAdmins.includes(message.ownerId) }
+                      onClickEvent={()=>this.viewMediaToggle(message)}
+                      showMoreOptionsIcon={["open"].includes(conversation.type) && !conversation.isAdmin ? false : true}
+                      renderMoreOptions={() => {
+                      return (
+                        <div className="ch-more-options-container">
+                          { message.ownerId == user.id && !message.isDeleted && <p onClick={()=>this.deleteMessagesForEveryone(message.id)}>Delete for everyone</p>}
+                          { !["open", "public"].includes(conversation.type) && <p onClick={()=>this.deleteMessagesForMe(message.id)}>Delete for me</p> }
+                          { 
+                            message.ownerId != user.id &&
+                            conversation.isGroup && 
+                            conversation.isAdmin && 
+                            !banList.find(user => user.userId == message.ownerId) && 
+                            <p onClick={()=> this.banConversationUsers(message.ownerId, message.owner.displayName)}>{LANGUAGE_PHRASES.BAN_USER}</p>
+                          }
+                          { 
+                            message.ownerId != user.id &&
+                            conversation.isGroup && 
+                            conversation.isAdmin && 
+                            banList.find(user => user.userId == message.ownerId) && 
+                            <p onClick={()=> this.unbanConversationUsers(message.ownerId)}>{LANGUAGE_PHRASES.UNBAN_USER}</p>
+                          }
+                        </div>
+                      )
+                      }}
+                    />
+                })
+              }
+
+              <div className="ch-typing-strings">{typingStrings}</div>
+            </div>
+          </div>
+
+          { conversation &&
+            <div style={{display: (activeTab == 'chat') ? 'block' : 'none'}}>
+              { composerDisabled ?
+                <div className="ch-composer-disabled-box">
+                  <div>{disableComposerMessage}</div>
+                </div>
+                :
+                <div id="ch_send_box" className="ch-send-box">
+
+                { showComposerActions &&
+                  <>
+                    <div className="ch-media-icon-box">
+                      <i title={LANGUAGE_PHRASES.SHARE_GALLERY} className="material-icons ch-attachment-icon">insert_photo</i>
+                      <input id="ch_gallary_input" title={LANGUAGE_PHRASES.SHARE_GALLERY} className="ch-gallary-input" type="file" accept="image/*, video/*" onChange={this.sendMedia} />
+                    </div>
+
+                    <div className="ch-media-icon-box">
+                      <i title={LANGUAGE_PHRASES.SHARE_DOCUMENT} className="material-icons ch-attachment-icon">description</i>
+                      <input id="ch_document_input" title={LANGUAGE_PHRASES.SHARE_DOCUMENT} className="ch-document-input" type="file" accept="application/*,.doc,.docx,.xls,.ppt" onChange={this.sendMedia} />
+                    </div>
+                  </>
+                }
+                  <textarea 
+                    id="ch_input_box"
+                    className="ch-input-box"
+                    type="text"
+                    placeholder={LANGUAGE_PHRASES.SEND_MESSAGE}
+                    value={text}
+                    onKeyPress={(e) => { this.handleKeyPress(e) }}
+                    onChange={(e) => { this.handleChange(e) }} 
+                    ></textarea>
+
+                    <button
+                      id="ch_send_button"
+                      className="ch-send-button"
+                      title={LANGUAGE_PHRASES.SEND}
+                      onClick={this.sendMessage}
+                    >
+                      <i className="ch-send-icon material-icons">send</i>
+                    </button>
+
+                </div>
+              }
+            </div>
+          }
+
+          { this.state.openMediaFile && <MediaLightBox file={this.state.openMediaFile} onCloseClick={()=> this.viewMediaToggle(null)} /> }
+
+          { this.state.guestJoinFormOpened && <GuestJoinForm onCloseClick={this.toggleGuestJoinForm} onJoinedAsGuest={this.onJoinedAsGuest} /> }
+        </React.Fragment>
+
+        <React.Fragment>
+          <div className="conversation-window-manage" style={{display: (activeTab == 'manage') ? 'block' : 'none'}}>
+            { !banList.length && <div className="center no-record-found">Currently, no user is banned from sending messages to this Show</div>}
+            <ul>
+              {
+                banList.map(user => {
+                  return (
+                    <SimpleList
+                      key={user.userId}
+                      title={user.user.displayName}
+                      action={() => {
+                        return (
+                          <React.Fragment>
+                            <span onClick={()=>this.unbanConversationUsers(user.userId)}>{LANGUAGE_PHRASES.UNBAN_USER}</span>
+                          </React.Fragment>
+                        )
+                      }}
+                    />
+                  );
+               })
+              }
+            </ul>
+          </div>
+        </React.Fragment>
+      </div>
+    );
   }
 }
 
@@ -703,7 +807,7 @@ ConversationWindow.defaultProps = {
   allowGuestUsers: false
 };
 
-const mapStateToProps = ({message, client}, ownProps) => {
+const mapStateToProps = ({message, conversation, client}, ownProps) => {
   return {...message, ...client, ownProps: ownProps}
 }
 
@@ -720,8 +824,11 @@ ConversationWindow = connect(
     registerConversationEventHandlers,
     deleteMessagesForEveryone,
     deleteMessagesForMe,
+    banConversationUsers,
+    unbanConversationUsers,
     startWatchingAndSetActiveConversation,
     stopWatchingAndSetNullConversation,
+    getConversationBanList,
    }
 )(ConversationWindow);
 

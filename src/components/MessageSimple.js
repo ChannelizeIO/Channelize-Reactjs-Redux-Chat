@@ -7,10 +7,10 @@ import { Avatar } from "./Avatar";
 
 class MessageSimple extends Component {
 	constructor(props) {
-	  	super(props);
-	  	this.state = {
-	  		showMoreOptions: false
-  		}
+  	super(props);
+  	this.state = {
+  		showMoreOptions: false
+		}
 	}
 
 	downloadFile(url, name) {
@@ -24,17 +24,17 @@ class MessageSimple extends Component {
 	}
 
 	toggleMoreOptions = () => {
-	    this.setState((state) => ({
-      		showMoreOptions: !state.showMoreOptions
-	    }));
-  	}
+    this.setState((state) => ({
+    		showMoreOptions: !state.showMoreOptions
+    }));
+	}
 
-  	hideMoreOptions = () => {
+	hideMoreOptions = () => {
 		if (!this.state.showMoreOptions) return;
 		this.setState((state) => ({
 			showMoreOptions: false
 		}));
-  	}
+	}
 
 	render() {
 		const {
@@ -50,6 +50,13 @@ class MessageSimple extends Component {
 		let msgContainerPos = message.isUser ? "right" : "left";
 
 		let adminMsg = message.type === "admin" ? true : false;
+		let adminMessageType = null;
+		if (adminMsg) {
+			const attachment = message.attachments.length ? message.attachments[0] : null;
+			if (attachment) {
+				adminMessageType = attachment.adminMessageType;
+			}
+		}
 
 		let fileMessage;
 
@@ -99,7 +106,7 @@ class MessageSimple extends Component {
 
 		return (
 			<React.Fragment>
-				{ message.showDateSeparator && 
+				{ message.showDateSeparator && 	
 					<div key={`${message.id}-date`} className="ch-msg-padding">
 						<div className="ch-message-date-separator">
 							<div className="message-date-separator_left"></div>
@@ -110,12 +117,12 @@ class MessageSimple extends Component {
 				}
 
 				{ adminMsg ?
-					<div className="ch-admin-msg-container">
+					<div className={`ch-admin-msg-container ${message.type} ${adminMessageType}`}>
 						<span className="ch-admin-msg">{message.text}</span>
 					</div>
 					:
 					<div key={message.id} className={`ch-msg-padding ${msgContainerPos}`}>
-						<div className={`ch-msg-container ch-msg-container-simple`}>
+						<div className={`ch-msg-container ch-msg-container-simple ${message.type}`}>
 
 							{ message.showOwnerAvatar && <Avatar src={message.owner.profileImageUrl} initials={message.owner.displayName} className="ch-message-owner-avatar"></Avatar> }
 

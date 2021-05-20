@@ -3,10 +3,27 @@ import { withChannelizeContext } from '../context';
 import { dateSeparatorParser } from '../utils'
 import { Avatar } from "./Avatar";
 import { LANGUAGE_PHRASES } from "../constants";
+import { OutsideClickHandler } from './OutsideClickHandler';
 
 class MessageLivestream extends Component {
 	constructor(props) {
   	super(props);
+  	this.state = {
+  		showMoreOptions: false
+		}
+	}
+
+	toggleMoreOptions = () => {
+    this.setState((state) => ({
+  		showMoreOptions: !state.showMoreOptions
+    }));
+	}
+
+	hideMoreOptions = () => {
+		if (!this.state.showMoreOptions) return;
+		this.setState((state) => ({
+			showMoreOptions: false
+		}));
 	}
 
 	showImage(url) {
@@ -30,12 +47,21 @@ class MessageLivestream extends Component {
 	}
 
 	render() {
-		const { client, message, isSentByAdmin } = this.props;
+		const { client, message, isSentByAdmin, showMoreOptionsIcon, renderMoreOptions } = this.props;
+
+		const { showMoreOptions } = this.state;
 
 		// Set class for user/owner message
 		let msgContainerPos = "left";  
 
 		let adminMsg = message.type === "admin" ? true : false;
+		let adminMessageType = null;
+		if (adminMsg) {
+			const attachment = message.attachments.length ? message.attachments[0] : null;
+			if (attachment) {
+				adminMessageType = attachment.adminMessageType;
+			}
+		}
 
 		let fileMessage;
 		if (message.attachments && message.attachments.length) {
@@ -89,32 +115,39 @@ class MessageLivestream extends Component {
 				}
 
 				{ adminMsg ?
-					<div className="ch-admin-msg-container">
+					<div className={`ch-admin-msg-container ${message.type} ${adminMessageType}`}>
 						<span className="ch-admin-msg">{message.text}</span>
 					</div>
 					:
-
-
 					<div key={message.id} className={`ch-msg-padding ${msgContainerPos}`}>
-						<div className={`ch-msg-container ch-msg-container-livestream`}>
-
+						<div className={`ch-msg-container ch-msg-container-livestream ${message.type}`}>
 							<Avatar src={message.owner.profileImageUrl} initials={message.owner.displayName} className="ch-message-owner-avatar"></Avatar>
-
 							<div className={`ch-msg-content ch-msg-content__livestream`}>
-									{ message.body && 
-										<div className={`ch-text-message`}>
-											<div className="ch-message-owner-name">{message.owner.displayName}
-												{isSentByAdmin && <span> ({LANGUAGE_PHRASES.HOST})</span>}
-											</div>
-											{message.body}
-										</div> 
-									}
+								{ message.body && 
+									<div className={`ch-text-message`}>
+										<div className="ch-message-owner-name">{message.owner.displayName}
+											{isSentByAdmin && <span> ({LANGUAGE_PHRASES.HOST})</span>}
+										</div>
+										{message.body}
+									</div> 
+								}
 
-									{fileMessage}
-
-								</div>
+								{fileMessage}
 							</div>
+							{showMoreOptionsIcon && 
+								<React.Fragment>
+									<div className="ch-msg-more-icon">
+										<i className="material-icons" onClick={()=>this.toggleMoreOptions()}>more_vert</i>
+									</div>
+									<OutsideClickHandler onOutsideClick={()=>this.hideMoreOptions()}>
+										<div onClick={()=>this.toggleMoreOptions()}>
+											{ showMoreOptions && renderMoreOptions && renderMoreOptions()}
+										</div>
+									</OutsideClickHandler>
+								</React.Fragment>
+							}
 						</div>
+					</div>
 				}
 			</React.Fragment>
 		);

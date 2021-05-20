@@ -16,7 +16,8 @@ import {
   MEMBERS_ADDED_EVENT,
   MEMBERS_REMOVED_EVENT,
   CONVERSATION_UPDATED_EVENT,
-  USER_UPDATED_EVENT
+  USER_UPDATED_EVENT,
+  CONVERSATION_BAN_UPDATED_EVENT,
 } from '../constants';
 
 const _connect = (client, userId, accessToken) => {
@@ -185,6 +186,13 @@ export const registerEventHandlers = (client) => {
     client.chsocket.on('conversation.members_removed', function (response) {
       dispatch({
         type: MEMBERS_REMOVED_EVENT,
+        payload: response
+      });
+    });
+
+    client.chsocket.on('user.conversation_ban_updated', function (response) {
+      dispatch({
+        type: CONVERSATION_BAN_UPDATED_EVENT,
         payload: response
       });
     });
