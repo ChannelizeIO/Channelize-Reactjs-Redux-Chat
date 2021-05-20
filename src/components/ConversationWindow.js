@@ -766,6 +766,7 @@ class ConversationWindow extends PureComponent {
 
         <React.Fragment>
           <div className="conversation-window-manage" style={{display: (activeTab == 'manage') ? 'block' : 'none'}}>
+            { !banList.length && <div className="center no-record-found">Currently, no user is banned from sending messages to this Show</div>}
             <ul>
               {
                 banList.map(user => {
