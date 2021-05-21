@@ -25,6 +25,7 @@ import {
   startWatchingAndSetActiveConversation,
   stopWatchingAndSetNullConversation,
   getConversationBanList,
+  registerEventHandlers
 } from '../actions';
 import moment from 'moment';
 import { v4 as uuid } from 'uuid';
@@ -302,6 +303,7 @@ class ConversationWindow extends PureComponent {
   }
   
   async onJoinedAsGuest(guest) {
+    this.props.registerEventHandlers(this.props.client)
     await this.props.onJoinedAsGuest(guest)
     await this.sendMessage();
   }
@@ -829,6 +831,7 @@ ConversationWindow = connect(
     startWatchingAndSetActiveConversation,
     stopWatchingAndSetNullConversation,
     getConversationBanList,
+    registerEventHandlers
    }
 )(ConversationWindow);
 
