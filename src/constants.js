@@ -47,7 +47,7 @@ export const LANGUAGE_PHRASES = {
 	GUEST_JOIN_LABEL_DISPLAY_NAME: 'Enter your name here',
 	BAN_USER: 'Ban User',
 	UNBAN_USER: 'Unban User',
-	BAN_USER_MESSAGE: 'You are currently not allowed to send messages to this Show.',
+	BAN_USER_MESSAGE: 'You are currently not allowed to send messages to this Show',
 	NOT_ALLOWED_TO_CHAT: 'You must sign-in to chat',
 }
 
