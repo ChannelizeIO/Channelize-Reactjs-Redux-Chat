@@ -467,6 +467,13 @@
         .ch-text-message {
           background-color: $ch-conversation-window-user-msg-bg-color;
           color: $ch-conversation-window-user-msg-color;
+
+          p {
+            margin: 0;
+            a {
+              color: blue !important;
+            }
+          }
         }
         .message-info {
           text-align: right;
@@ -487,6 +494,13 @@
           color: $ch-conversation-window-msg-color;
           overflow-wrap: break-word;
           word-break: break-word;
+
+          p {
+            margin: 0;
+            a {
+              color: blue !important;
+            }
+          }
         }
         .ch__message-livestream__text {
           color: $ch-conversation-window-msg-color;
@@ -615,6 +629,12 @@
           text-align: left;
           padding: 10px;
           word-break: break-word;
+          p {
+            margin: 0;
+            a {
+              color: blue !important;
+            }
+          }
           .ch-docs-data {
             min-width: 200px;
             height: 35px;

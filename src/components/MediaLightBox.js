@@ -22,8 +22,8 @@ class MediaLightBox extends PureComponent {
 			<div className="ch-light-box-container">
 
 				<div>
-					<i title="Close" className="material-icons ch-close-light-box-icon" onClick={this.props.onCloseClick}>close</i>
-					<i title="Download" className="material-icons ch-close-light-box-icon" onClick={()=> this.downloadFile(fileUrl, file.name)}>arrow_downward</i>
+					<i title="Close" translate="no" className="material-icons ch-close-light-box-icon" onClick={this.props.onCloseClick}>close</i>
+					<i title="Download" translate="no" className="material-icons ch-close-light-box-icon" onClick={()=> this.downloadFile(fileUrl, file.name)}>arrow_downward</i>
 				</div>
 
 				{ file.type == "image" &&

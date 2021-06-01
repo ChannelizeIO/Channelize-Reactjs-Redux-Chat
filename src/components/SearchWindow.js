@@ -136,7 +136,7 @@ class SearchWindow extends PureComponent {
 
         <div id="ch_search_box" className="ch-search-box">
           <input placeholder="Search" id="ch_search_input_box" className="ch-search-input-box" value={searchText} onChange={this.handleChange} />
-          { searchText && <i id="ch_clear_search_icon" className="material-icons ch-clear-search-icon" onClick={this.clearSearch}>close</i>}
+          { searchText && <i id="ch_clear_search_icon" translate="no" className="material-icons ch-clear-search-icon" onClick={this.clearSearch}>close</i>}
         </div>
 
         <div id="ch_friends_box" className="ch-friends-box">

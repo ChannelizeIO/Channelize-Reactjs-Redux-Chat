@@ -71,7 +71,7 @@ class MessageSimple extends Component {
 						return (
 							<div key={message.id} className="ch-video-container">
 								<img className="ch-image-message" src={attachment.thumbnailUrl} onClick={this.props.onClickEvent}/>
-								<i className="material-icons ch-video-play-icon" onClick={this.props.onClickEvent}>play_circle_outline</i>
+								<i translate="no" className="material-icons ch-video-play-icon" onClick={this.props.onClickEvent}>play_circle_outline</i>
 							</div>
 						);
 						break;
@@ -83,9 +83,9 @@ class MessageSimple extends Component {
 								<div className="ch-message">
 									<div className="ch-message-body">
 										<div className="ch-docs-data">
-											<i className="material-icons ch-attachment-icon">description</i>
+											<i translate="no" className="material-icons ch-attachment-icon">description</i>
 											<span className="ch-docs-name">{attachment.name}</span>
-											{ attachment.fileUrl && <i className="material-icons ch-docs-download-icon" onClick={() =>this.downloadFile(attachment.fileUrl, attachment.name)}>arrow_downward</i>}
+											{ attachment.fileUrl && <i translate="no" className="material-icons ch-docs-download-icon" onClick={() =>this.downloadFile(attachment.fileUrl, attachment.name)}>arrow_downward</i>}
 										</div>
 										<div className="ch-docs-details">
 											<hr></hr>
@@ -134,18 +134,18 @@ class MessageSimple extends Component {
 								<div className={`message-info`}>
 									<span id="ch_msg_time" className="ch-msg-time">{message.time}</span>
 									{ message.showReadStatus && message.readByAll &&
-										<i id="ch_msg_status" className="material-icons ch-msg-status ch-msg-read-status">done_all</i>
+										<i id="ch_msg_status" translate="no" className="material-icons ch-msg-status ch-msg-read-status">done_all</i>
 									}
 									{ message.showReadStatus && !message.pending && !message.readByAll &&
-										<i id="ch_msg_status" className="material-icons ch-msg-status">done</i>
+										<i id="ch_msg_status" translate="no" className="material-icons ch-msg-status">done</i>
 									}
 									{ message.showReadStatus && message.pending &&
-										<i id="ch_msg_status" className="material-icons ch-msg-status">schedule</i>
+										<i id="ch_msg_status" translate="no" className="material-icons ch-msg-status">schedule</i>
 									}
 								</div>
 							</div>
 							<div className="ch-msg-more-icon">
-								<i className="material-icons" onClick={()=>this.toggleMoreOptions()}>more_vert</i>
+								<i translate="no" className="material-icons" onClick={()=>this.toggleMoreOptions()}>more_vert</i>
 							</div>
 							<OutsideClickHandler onOutsideClick={()=>this.hideMoreOptions()}>
 								<div onClick={()=>this.toggleMoreOptions()}>

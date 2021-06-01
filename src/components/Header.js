@@ -32,7 +32,7 @@ class Header extends PureComponent {
 
     return (
     <div id="ch_header" className="ch-header">
-      { showArrowBack && <i className="material-icons arrow-back" onClick={onBack}>arrow_back</i>}
+      { showArrowBack && <i translate="no" className="material-icons arrow-back" onClick={onBack}>arrow_back</i>}
 
       { (imageSrc || imageInitials) && <Avatar src={imageSrc} initials={imageInitials} className="ch-header-image"></Avatar> }
 
@@ -41,7 +41,7 @@ class Header extends PureComponent {
           { title && 
             <div className="ch-header-title">
               <div>{title}</div>
-              { showChevron && <i className="material-icons ch-chevron-icon" onClick={this.toggleDropDownList}>keyboard_arrow_down</i>}
+              { showChevron && <i translate="no" className="material-icons ch-chevron-icon" onClick={this.toggleDropDownList}>keyboard_arrow_down</i>}
             </div>
           }
           { subtitle && <div className="ch-header-subtitle">{subtitle}</div>}

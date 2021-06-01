@@ -648,7 +648,7 @@ class ConversationWindow extends PureComponent {
           renderRight={() => {
             return (
               <React.Fragment>
-                { showCloseIcon && <i title="Close" className="material-icons" onClick={this.onCloseIconClick}>close</i>}
+                { showCloseIcon && <i title="Close" translate="no" className="material-icons" onClick={this.onCloseIconClick}>close</i>}
               </React.Fragment>
             )
           }}/>
@@ -727,12 +727,12 @@ class ConversationWindow extends PureComponent {
                 { showComposerActions &&
                   <>
                     <div className="ch-media-icon-box">
-                      <i title={LANGUAGE_PHRASES.SHARE_GALLERY} className="material-icons ch-attachment-icon">insert_photo</i>
+                      <i title={LANGUAGE_PHRASES.SHARE_GALLERY} translate="no" className="material-icons ch-attachment-icon">insert_photo</i>
                       <input id="ch_gallary_input" title={LANGUAGE_PHRASES.SHARE_GALLERY} className="ch-gallary-input" type="file" accept="image/*, video/*" onChange={this.sendMedia} />
                     </div>
 
                     <div className="ch-media-icon-box">
-                      <i title={LANGUAGE_PHRASES.SHARE_DOCUMENT} className="material-icons ch-attachment-icon">description</i>
+                      <i title={LANGUAGE_PHRASES.SHARE_DOCUMENT} translate="no" className="material-icons ch-attachment-icon">description</i>
                       <input id="ch_document_input" title={LANGUAGE_PHRASES.SHARE_DOCUMENT} className="ch-document-input" type="file" accept="application/*,.doc,.docx,.xls,.ppt" onChange={this.sendMedia} />
                     </div>
                   </>
@@ -753,7 +753,7 @@ class ConversationWindow extends PureComponent {
                       title={LANGUAGE_PHRASES.SEND}
                       onClick={this.sendMessage}
                     >
-                      <i className="ch-send-icon material-icons">send</i>
+                      <i translate="no" className="ch-send-icon material-icons">send</i>
                     </button>
 
                 </div>

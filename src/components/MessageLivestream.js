@@ -4,6 +4,8 @@ import { dateSeparatorParser } from '../utils'
 import { Avatar } from "./Avatar";
 import { LANGUAGE_PHRASES } from "../constants";
 import { OutsideClickHandler } from './OutsideClickHandler';
+import ReactMarkdown from 'react-markdown';
+import gfm from 'remark-gfm';
 
 class MessageLivestream extends Component {
 	constructor(props) {
@@ -46,6 +48,16 @@ class MessageLivestream extends Component {
 	  document.body.removeChild(link);
 	}
 
+	renderMarkdown = (text) => {
+		return (
+			<ReactMarkdown
+				remarkPlugins={[gfm]}
+				children={text}
+				linkTarget="_blank"
+			/>
+		)
+	}
+
 	render() {
 		const { client, message, isSentByAdmin, showMoreOptionsIcon, renderMoreOptions } = this.props;
 
@@ -74,7 +86,7 @@ class MessageLivestream extends Component {
 					return (
 					<div className="ch-video-container">
 						<img className="ch-image-message" src={attachment.thumbnailUrl} onClick={()=>this.showImage(attachment.fileUrl)}/>
-						<i className="material-icons ch-video-play-icon">play_circle_outline</i>
+						<i translate="no" className="material-icons ch-video-play-icon">play_circle_outline</i>
 					</div>
 					);
 					break;
@@ -83,9 +95,9 @@ class MessageLivestream extends Component {
 					<div className="ch-text-message">
 						<div className="ch-message-body">
 							<div className="ch-docs-data">
-							<i className="material-icons ch-attachment-icon">description</i>
+							<i translate="no" className="material-icons ch-attachment-icon">description</i>
 							<span className="ch-docs-name">{attachment.name}</span>
-							<i className="material-icons ch-docs-download-icon" onClick={() =>this.downloadFile(attachment.fileUrl, attachment.name)}>arrow_downward</i>
+							<i translate="no" className="material-icons ch-docs-download-icon" onClick={() =>this.downloadFile(attachment.fileUrl, attachment.name)}>arrow_downward</i>
 						</div>
 						<div className="ch-docs-details">
 							<hr></hr>
@@ -128,7 +140,7 @@ class MessageLivestream extends Component {
 										<div className="ch-message-owner-name">{message.owner.displayName}
 											{isSentByAdmin && <span> ({LANGUAGE_PHRASES.HOST})</span>}
 										</div>
-										{message.body}
+										{this.renderMarkdown(message.body)}
 									</div> 
 								}
 
@@ -137,7 +149,7 @@ class MessageLivestream extends Component {
 							{showMoreOptionsIcon && 
 								<React.Fragment>
 									<div className="ch-msg-more-icon">
-										<i className="material-icons" onClick={()=>this.toggleMoreOptions()}>more_vert</i>
+										<i translate="no" className="material-icons" onClick={()=>this.toggleMoreOptions()}>more_vert</i>
 									</div>
 									<OutsideClickHandler onOutsideClick={()=>this.hideMoreOptions()}>
 										<div onClick={()=>this.toggleMoreOptions()}>

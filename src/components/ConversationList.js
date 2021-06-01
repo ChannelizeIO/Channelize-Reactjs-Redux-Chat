@@ -126,8 +126,8 @@ class ConversationList extends PureComponent {
           renderRight={() => {
             return (
               <div>
-                { showSearchIcon && <i title="Search" className="material-icons" onClick={this.onSearchIconClick}>search</i>}
-                { showCloseIcon && <i title="Close" className="material-icons" onClick={this.onCloseIconClick}>close</i>}
+                { showSearchIcon && <i title="Search" translate="no" className="material-icons" onClick={this.onSearchIconClick}>search</i>}
+                { showCloseIcon && <i title="Close" translate="no" className="material-icons" onClick={this.onCloseIconClick}>close</i>}
               </div>
             )
           }}/>

@@ -1,7 +1,7 @@
 import {produce, setAutoFreeze} from "immer"
 import moment from 'moment';
 import { LANGUAGE_PHRASES, ADMIN_MSG_FORMATS, CALL_FORMATS, IMAGES } from "../constants";
-var sprintf = require('sprintf-js').sprintf
+var sprintf = require('sprintf-js').sprintf;
 setAutoFreeze(false);
 
 export function createReducer(initialState, actionsMap) {
@@ -122,7 +122,7 @@ export const modifyMessageList = (client, conversation, list) => {
       message.system = true;
       message = _modifyAdminMessage(user, message);
     }
-
+    
     return message;
   });
 };

@@ -53,7 +53,7 @@ class GuestJoinForm extends PureComponent {
       <div className="ch-light-box-container ch-guest-light-box-container">
         <div className="ch-guest-light-box">
           <div className="ch-guest-light-box-close-container">
-            <i title="Close" className="material-icons ch-guest-light-box-close" onClick={onCloseClick}>close</i>
+            <i title="Close" translate="no" className="material-icons ch-guest-light-box-close" onClick={onCloseClick}>close</i>
           </div>
           <form onSubmit={this.handleSubmit}>
             <div className="form-element-wrapper">
