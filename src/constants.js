@@ -35,6 +35,7 @@ export const LANGUAGE_PHRASES = {
 	LOGIN_WITH_TEST_USERS : "OR Login with Test users",
 	ENTER_NAME : "Please enter a name",
 	USER_EXIST : "User already exist with this username",
+	DELETE_MESSAGE : "Delete message",
 	DELETE_FOR_ME : "Delete for me",
 	DELETE_FOR_EVERYONE : "Delete for everyone",
 	DOWNLOAD_FILE_NAME : "File",
