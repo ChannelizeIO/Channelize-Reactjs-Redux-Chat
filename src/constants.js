@@ -35,6 +35,7 @@ export const LANGUAGE_PHRASES = {
 	LOGIN_WITH_TEST_USERS : "OR Login with Test users",
 	ENTER_NAME : "Please enter a name",
 	USER_EXIST : "User already exist with this username",
+	DELETE_MESSAGE : "Delete message",
 	DELETE_FOR_ME : "Delete for me",
 	DELETE_FOR_EVERYONE : "Delete for everyone",
 	DOWNLOAD_FILE_NAME : "File",
@@ -47,7 +48,7 @@ export const LANGUAGE_PHRASES = {
 	GUEST_JOIN_LABEL_DISPLAY_NAME: 'Enter your name here',
 	BAN_USER: 'Ban User',
 	UNBAN_USER: 'Unban User',
-	BAN_USER_MESSAGE: 'You are currently not allowed to send messages to this Show',
+	BAN_USER_MESSAGE: 'You are currently not allowed to post messages on this Show',
 	NOT_ALLOWED_TO_CHAT: 'You must sign-in to chat',
 }
 

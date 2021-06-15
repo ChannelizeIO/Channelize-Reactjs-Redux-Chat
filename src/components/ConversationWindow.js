@@ -552,6 +552,7 @@ class ConversationWindow extends PureComponent {
       noConversationFoundMessage,
       allowGuestUsers,
       banList,
+      showDeletedMessageCard = true
     } = this.props;
 
     const { text, dummyConversation, activeTab } = this.state;
@@ -621,7 +622,6 @@ class ConversationWindow extends PureComponent {
       // Check show tabs in conversation window or not.
       showTabs = connected && !messageLoading && conversation.isAdmin && conversation.type && ["open", "public"].includes(conversation.type);
     }
-
     const typingStrings = typingString(typing);
 
     return (
@@ -679,6 +679,9 @@ class ConversationWindow extends PureComponent {
 
               {
                 messagelist.map(message => {
+                  if(message.isDeleted && !showDeletedMessageCard) {
+                    return;
+                  }
                   return <Message 
                       key={message.id} 
                       message={message} 
@@ -688,8 +691,9 @@ class ConversationWindow extends PureComponent {
                       renderMoreOptions={() => {
                       return (
                         <div className="ch-more-options-container">
-                          { message.ownerId == user.id && !message.isDeleted && <p onClick={()=>this.deleteMessagesForEveryone(message.id)}>Delete for everyone</p>}
-                          { !["open", "public"].includes(conversation.type) && <p onClick={()=>this.deleteMessagesForMe(message.id)}>Delete for me</p> }
+                          { client.privateKey && conversation.config.allow_delete_message_by_admin && !message.isDeleted && <p onClick={()=>this.deleteMessagesForEveryone(message.id)}>{LANGUAGE_PHRASES.DELETE_MESSAGE}</p>}
+                          { !client.privateKey && message.ownerId == user.id && !message.isDeleted && <p onClick={()=>this.deleteMessagesForEveryone(message.id)}>{LANGUAGE_PHRASES.DELETE_FOR_EVERYONE}</p>}
+                          { !client.privateKey && !["open", "public"].includes(conversation.type) && <p onClick={()=>this.deleteMessagesForMe(message.id)}>{LANGUAGE_PHRASES.DELETE_FOR_ME}</p> }
                           { 
                             message.ownerId != user.id &&
                             conversation.isGroup && 
